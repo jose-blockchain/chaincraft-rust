@@ -201,13 +201,18 @@ cargo doc --open --all-features
 Check out the `examples/` directory for more usage examples:
 
 - `basic_node.rs`: Simple node setup and operation
-- `custom_consensus.rs`: Implementing custom consensus mechanisms
-- `network_simulation.rs`: Multi-node network simulation
+- `keypair_generation.rs`: Cryptographic keypair generation and signing
+- `chatroom_example.rs`: Decentralized chatroom protocol (create rooms, post messages)
+- `randomness_beacon_example.rs`: Verifiable randomness beacon
+- `shared_objects_example.rs`: Multi-node network with shared object propagation
+- `proof_of_work_example.rs`: Proof of Work mining and verification
 
 Run examples with:
 
 ```bash
 cargo run --example basic_node
+cargo run --example chatroom_example
+cargo run --example shared_objects_example
 ```
 
 ## Contributing
