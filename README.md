@@ -1,11 +1,19 @@
+<div align="center">
+
 # Chaincraft Rust
 
-<!--
+**A high-performance Rust-based platform for blockchain education and prototyping**
+
 [![Crates.io](https://img.shields.io/crates/v/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
 [![Documentation](https://docs.rs/chaincraft-rust/badge.svg)](https://docs.rs/chaincraft-rust)
-[![Build Status](https://github.com/chaincraft-org/chaincraft-rust/workflows/CI/badge.svg)](https://github.com/chaincraft-org/chaincraft-rust/actions)
--->
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI](https://github.com/jio-gl/chaincraft-rust/actions/workflows/ci.yml/badge.svg)](https://github.com/jio-gl/chaincraft-rust/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+[![Rust](https://img.shields.io/badge/rust-1.82%2B-orange.svg)](https://www.rust-lang.org/)
+[![Crates.io Downloads](https://img.shields.io/crates/d/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
+[![Dependencies](https://img.shields.io/librariesio/release/crates/chaincraft-rust)](https://libraries.io/crates/chaincraft-rust)
+
+</div>
 
 ## Overview
 
