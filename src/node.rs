@@ -10,10 +10,7 @@ use crate::{
 };
 
 use serde::de::Error as SerdeDeError;
-use std::{
-    collections::HashMap,
-    sync::Arc,
-};
+use std::{collections::HashMap, sync::Arc};
 use tokio::sync::RwLock;
 
 /// Main node structure for Chaincraft network
