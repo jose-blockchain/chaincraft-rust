@@ -150,15 +150,15 @@ impl PublicKey {
         }
     }
 
-        pub fn verify(&self, message: &[u8], signature: &Signature) -> Result<bool> {
+    pub fn verify(&self, message: &[u8], signature: &Signature) -> Result<bool> {
         match (self, signature) {
             (PublicKey::Ed25519(pk), Signature::Ed25519(sig)) => {
                 Ok(pk.verify(message, sig).is_ok())
-            }
+            },
             (PublicKey::Secp256k1(pk), Signature::Secp256k1(sig)) => {
                 let verifying_key = k256::ecdsa::VerifyingKey::from(pk);
                 Ok(verifying_key.verify(message, sig).is_ok())
-            }
+            },
             _ => Err(ChaincraftError::Crypto(CryptoError::InvalidSignature)),
         }
     }

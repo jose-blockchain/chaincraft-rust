@@ -4,7 +4,6 @@ use chaincraft_rust::{ChaincraftNode, Result};
 use clap::{Parser, Subcommand};
 use tracing::{info, Level};
 
-
 #[derive(Parser)]
 #[command(name = "chaincraft-cli")]
 #[command(about = "A high-performance blockchain education and prototyping platform")]
