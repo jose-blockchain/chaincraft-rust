@@ -6,7 +6,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
 [![Documentation](https://docs.rs/chaincraft-rust/badge.svg)](https://docs.rs/chaincraft-rust)
-[![CI](https://github.com/jio-gl/chaincraft-rust/actions/workflows/ci.yml/badge.svg)](https://github.com/jio-gl/chaincraft-rust/actions)
+[![CI](https://github.com/jose-blockchain/chaincraft-rust/actions/workflows/ci.yml/badge.svg)](https://github.com/jose-blockchain/chaincraft-rust/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [![Rust](https://img.shields.io/badge/rust-1.82%2B-orange.svg)](https://www.rust-lang.org/)
@@ -42,7 +42,7 @@ cargo install chaincraft-rust
 #### From Source
 
 ```bash
-git clone https://github.com/jio-gl/chaincraft-rust.git
+git clone https://github.com/jose-blockchain/chaincraft-rust.git
 cd chaincraft-rust
 cargo build --release
 ```
@@ -73,7 +73,7 @@ Add Chaincraft Rust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-chaincraft-rust = "0.1.0"
+chaincraft-rust = "0.2.0"
 ```
 
 ### Basic Example
@@ -128,11 +128,58 @@ async fn main() -> Result<()> {
 Chaincraft Rust is built with a modular architecture:
 
 - **Core**: Basic blockchain data structures and validation logic
-- **Consensus**: Pluggable consensus mechanisms (currently implementing PoS)
+- **Consensus**: Pluggable consensus mechanisms (Tendermint-style, randomness beacon)
 - **Network**: P2P networking layer with peer discovery
 - **Storage**: Flexible storage backends (memory, persistent, indexed)
 - **Crypto**: Cryptographic primitives and utilities
 - **CLI**: Command-line interface for node management
+
+### Network Architecture (Rust Version)
+
+The Rust implementation uses **raw UDP sockets** (no libp2p) for simplicity and control:
+
+1. **Bind**: Each node binds a UDP socket to `host:port` (port `0` = ephemeral).
+2. **Gossip Loop**: A background task periodically rebroadcasts stored message hashes to all known peers.
+3. **Receive Loop**: Incoming datagrams are parsed as JSON `SharedMessage`, deduplicated, stored, and rebroadcast.
+4. **Local Discovery**: In-process nodes register in a static `LOCAL_NODES` map for automatic peer discovery within the same process.
+5. **Message Flow**: `create_shared_message_with_data()` stores a message, processes it through `ApplicationObject`s, and broadcasts to peers.
+
+### Running Multi-Node Demos
+
+Start multiple nodes in separate terminals or use the multi-node script:
+
+```bash
+# Terminal 1
+chaincraft-cli start --port 9001
+
+# Terminal 2
+chaincraft-cli start --port 9002 --peer 127.0.0.1:9001
+
+# Terminal 3
+chaincraft-cli start --port 9003 --peer 127.0.0.1:9001 --peer 127.0.0.1:9002
+```
+
+Or run the shared objects example (in-process multi-node):
+
+```bash
+cargo run --example shared_objects_example
+```
+
+### Python vs Rust Feature Mapping
+
+| Python (chaincraft)   | Rust (chaincraft-rust)  |
+|-----------------------|-------------------------|
+| `node.py`             | `src/node.rs`           |
+| `SharedMessage`       | `shared::SharedMessage` |
+| `ApplicationObject`   | `shared_object::ApplicationObject` |
+| `SimpleSharedNumber`  | `shared_object::SimpleSharedNumber` |
+| `SimpleChainObject`   | `shared_object::MerkelizedChain`    |
+| Message chain         | `shared_object::MessageChain`       |
+| ECDSA ledger          | `examples::ecdsa_ledger::ECDSALedgerObject` |
+| `dbm` / on-disk storage | `sled` (feature `persistent`) |
+| `local_discovery`     | `NodeConfig::local_discovery` + `LOCAL_NODES` registry |
+| `gossip` loop         | Gossip task in `start_networking()` |
+| UDP broadcast         | `broadcast_bytes()` via `UdpSocket` |
 
 ## Features
 
@@ -144,13 +191,13 @@ Chaincraft Rust is built with a modular architecture:
 
 - `persistent`: Enable persistent storage using sled
 - `indexing`: Enable SQLite-based transaction indexing
-- `vdf-crypto`: Enable VDF (Verifiable Delay Function) support
+- `vdf-crypto`: Enable VDF (Verifiable Delay Function) support via [vdf](https://crates.io/crates/vdf) crate. Requires GMP: `apt install libgmp-dev` or `brew install gmp`
 
 Enable features in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-chaincraft-rust = { version = "0.1.0", features = ["persistent", "indexing"] }
+chaincraft-rust = { version = "0.2.0", features = ["persistent", "indexing"] }
 ```
 
 ## Development
@@ -266,7 +313,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - Built with [Tokio](https://tokio.rs/) for async runtime
 - Cryptography powered by [RustCrypto](https://github.com/RustCrypto)
-- P2P networking with [libp2p](https://libp2p.io/)
+- Custom UDP-based P2P networking (no libp2p dependency)
 
 ## Roadmap
 

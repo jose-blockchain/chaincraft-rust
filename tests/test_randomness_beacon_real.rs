@@ -16,6 +16,7 @@ async fn create_beacon_node() -> (ChaincraftNode, RandomnessBeaconObject) {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
 
     let beacon_obj = RandomnessBeaconObject::new(60, 3).unwrap(); // 60 sec rounds, threshold 3
     let app_obj: Box<dyn ApplicationObject> = Box::new(beacon_obj);

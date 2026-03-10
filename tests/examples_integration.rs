@@ -21,6 +21,7 @@ async fn create_chatroom_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
     let chatroom_obj: Box<dyn ApplicationObject> = Box::new(ChatroomObject::new());
     node.add_shared_object(chatroom_obj).await.unwrap();
     node.start().await.unwrap();
@@ -67,12 +68,15 @@ async fn test_chatroom_example_creates_room_and_posts() {
 #[tokio::test]
 async fn test_shared_objects_example_network() {
     let mut nodes = Vec::new();
-    for _ in 0..3 {
+    for i in 0..3 {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
         let mut node = ChaincraftNode::new(id, storage);
         let shared: Box<dyn ApplicationObject> = Box::new(SimpleSharedNumber::new());
         node.add_shared_object(shared).await.unwrap();
+        // Use distinct ports to avoid bind conflicts with default config
+        let port = 8200 + i as u16;
+        node.set_port(port);
         node.start().await.unwrap();
         nodes.push(node);
     }
@@ -110,8 +114,53 @@ async fn test_randomness_beacon_example_starts() {
     let mut node = ChaincraftNode::new(id, storage);
     let beacon_obj: Box<dyn ApplicationObject> = Box::new(beacon);
     node.add_shared_object(beacon_obj).await.unwrap();
+    // Use a non-default port to avoid clashes with other tests
+    node.set_port(8300);
     node.start().await.unwrap();
     assert!(node.shared_object_count().await > 0);
+    node.close().await.unwrap();
+}
+
+// -----------------------------------------------------------------------------
+// ECDSA Ledger Example Tests
+// -----------------------------------------------------------------------------
+
+#[tokio::test]
+async fn test_ecdsa_ledger_example_signed_transfers() {
+    use chaincraft_rust::examples::ecdsa_ledger::{helpers, ECDSALedgerObject};
+
+    chaincraft_rust::clear_local_registry();
+    let id = chaincraft_rust::network::PeerId::new();
+    let storage = Arc::new(chaincraft_rust::storage::MemoryStorage::new());
+    let mut node = chaincraft_rust::ChaincraftNode::new(id, storage);
+    node.set_port(0);
+    node.disable_local_discovery();
+    node.add_shared_object(Box::new(ECDSALedgerObject::new()))
+        .await
+        .unwrap();
+    node.start().await.unwrap();
+
+    let alice = ECDSASigner::new().unwrap();
+    let bob = ECDSASigner::new().unwrap();
+    let alice_pk = alice.get_public_key_pem().unwrap();
+    let bob_pk = bob.get_public_key_pem().unwrap();
+
+    let tx1 = helpers::create_transfer(alice_pk.clone(), bob_pk.clone(), 50, 0, &alice).unwrap();
+    node.create_shared_message_with_data(tx1).await.unwrap();
+    sleep(Duration::from_millis(100)).await;
+
+    let tx2 = helpers::create_transfer(bob_pk.clone(), alice_pk.clone(), 20, 0, &bob).unwrap();
+    node.create_shared_message_with_data(tx2).await.unwrap();
+    sleep(Duration::from_millis(100)).await;
+
+    let objs = node.shared_objects().await;
+    let ledger = objs.first().and_then(|o| o.as_any().downcast_ref::<ECDSALedgerObject>());
+    assert!(ledger.is_some());
+    let ledger = ledger.unwrap();
+    assert_eq!(ledger.entries().len(), 2);
+    assert_eq!(ledger.balance(&alice_pk), 20);
+    assert_eq!(ledger.balance(&bob_pk), 30);
+
     node.close().await.unwrap();
 }
 

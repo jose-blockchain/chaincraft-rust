@@ -24,6 +24,7 @@ async fn test_node_initialization() -> Result<()> {
 #[tokio::test]
 async fn test_node_start_stop() -> Result<()> {
     let mut node = ChaincraftNode::builder()
+        .port(0) // Use ephemeral port
         .with_persistent_storage(false)
         .build()?;
 
@@ -57,9 +58,9 @@ async fn test_multiple_nodes_different_ports() -> Result<()> {
 
 #[tokio::test]
 async fn test_connect_to_peer() -> Result<()> {
-    let mut node1 = ChaincraftNode::builder().port(8083).build()?;
+    let mut node1 = ChaincraftNode::builder().port(0).build()?;
 
-    let mut node2 = ChaincraftNode::builder().port(8084).build()?;
+    let mut node2 = ChaincraftNode::builder().port(0).build()?;
 
     node1.start().await?;
     node2.start().await?;
@@ -81,7 +82,7 @@ async fn test_connect_to_peer() -> Result<()> {
 
 #[tokio::test]
 async fn test_max_peers_limit() -> Result<()> {
-    let mut node = ChaincraftNode::builder().max_peers(2).port(8085).build()?;
+    let mut node = ChaincraftNode::builder().max_peers(2).port(0).build()?;
 
     node.start().await?;
 
@@ -108,6 +109,7 @@ async fn test_max_peers_limit() -> Result<()> {
 #[tokio::test]
 async fn test_create_shared_message() -> Result<()> {
     let mut node = ChaincraftNode::builder()
+        .port(0) // Use ephemeral port
         .with_persistent_storage(false)
         .build()?;
 
@@ -133,6 +135,7 @@ async fn test_create_shared_message() -> Result<()> {
 async fn test_persistent_vs_memory_storage() -> Result<()> {
     // Test memory storage
     let mut memory_node = ChaincraftNode::builder()
+        .port(0) // Use ephemeral port
         .with_persistent_storage(false)
         .build()?;
 
@@ -140,6 +143,7 @@ async fn test_persistent_vs_memory_storage() -> Result<()> {
 
     // Test persistent storage (using memory for testing)
     let mut persistent_node = ChaincraftNode::builder()
+        .port(0) // Use ephemeral port
         .with_persistent_storage(true)
         .build()?;
 
@@ -159,6 +163,7 @@ async fn test_persistent_vs_memory_storage() -> Result<()> {
 #[tokio::test]
 async fn test_node_lifecycle() -> Result<()> {
     let mut node = ChaincraftNode::builder()
+        .port(0) // Use ephemeral port
         .with_persistent_storage(false)
         .build()?;
 
@@ -186,6 +191,7 @@ async fn test_node_restart_capability() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id.clone(), storage.clone());
+    node.set_port(0); // Use ephemeral port
 
     // Start node
     node.start().await.unwrap();
@@ -197,6 +203,7 @@ async fn test_node_restart_capability() {
 
     // Create new node with same ID and start again
     let mut new_node = ChaincraftNode::new(id, storage);
+    new_node.set_port(0); // Use ephemeral port
     new_node.start().await.unwrap();
     assert!(new_node.is_running_async().await);
 
@@ -208,6 +215,7 @@ async fn test_node_configuration_persistence() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
     node.start().await.unwrap();
 
     // Create a message to test data persistence
@@ -227,6 +235,7 @@ async fn test_graceful_shutdown() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
     node.start().await.unwrap();
 
     // Create some activity before shutdown
@@ -248,6 +257,7 @@ async fn test_node_isolation() {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
         let mut node = ChaincraftNode::new(id, storage);
+        node.set_port(0); // Use ephemeral port
         node.start().await.unwrap();
         node
     };
@@ -255,6 +265,7 @@ async fn test_node_isolation() {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
         let mut node = ChaincraftNode::new(id, storage);
+        node.set_port(0); // Use ephemeral port
         node.start().await.unwrap();
         node
     };
@@ -262,6 +273,7 @@ async fn test_node_isolation() {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
         let mut node = ChaincraftNode::new(id, storage);
+        node.set_port(0); // Use ephemeral port
         node.start().await.unwrap();
         node
     };
@@ -292,6 +304,7 @@ async fn test_error_recovery() {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
     node.start().await.unwrap();
 
     // Try to create an invalid message that might cause errors

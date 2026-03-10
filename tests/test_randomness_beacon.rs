@@ -14,6 +14,7 @@ async fn create_beacon_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
     node.start().await.unwrap();
     node
 }

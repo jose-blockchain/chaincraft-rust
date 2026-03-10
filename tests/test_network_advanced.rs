@@ -1,5 +1,6 @@
 use anyhow::Result;
 use chaincraft_rust::{
+    clear_local_registry,
     error::{ChaincraftError, SerializationError},
     network::PeerId,
     storage::MemoryStorage,
@@ -10,21 +11,23 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 async fn create_test_node_with_port(port: u16) -> ChaincraftNode {
+    clear_local_registry();
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
     node.set_port(port);
+    node.disable_local_discovery();
     node.start().await.unwrap();
     node
 }
 
 #[tokio::test]
 async fn test_node_port_assignment() -> Result<()> {
-    let mut node1 = create_test_node_with_port(8001).await;
-    let mut node2 = create_test_node_with_port(8002).await;
+    let mut node1 = create_test_node_with_port(0).await;
+    let mut node2 = create_test_node_with_port(0).await;
 
-    assert_eq!(node1.port(), 8001);
-    assert_eq!(node2.port(), 8002);
+    assert!(node1.port() != 0);
+    assert!(node2.port() != 0);
     assert_ne!(node1.id(), node2.id());
 
     node1.close().await.unwrap();
@@ -34,8 +37,8 @@ async fn test_node_port_assignment() -> Result<()> {
 
 #[tokio::test]
 async fn test_peer_connection_establishment() -> Result<()> {
-    let mut node1 = create_test_node_with_port(8003).await;
-    let mut node2 = create_test_node_with_port(8004).await;
+    let mut node1 = create_test_node_with_port(0).await;
+    let mut node2 = create_test_node_with_port(0).await;
 
     // Connect node1 to node2
     let peer_addr = format!("127.0.0.1:{}", node2.port());
@@ -59,9 +62,9 @@ async fn test_peer_connection_establishment() -> Result<()> {
 
 #[tokio::test]
 async fn test_message_broadcasting() -> Result<()> {
-    let mut node1 = create_test_node_with_port(8005).await;
-    let mut node2 = create_test_node_with_port(8006).await;
-    let mut node3 = create_test_node_with_port(8007).await;
+    let mut node1 = create_test_node_with_port(0).await;
+    let mut node2 = create_test_node_with_port(0).await;
+    let mut node3 = create_test_node_with_port(0).await;
 
     // Create a message on node1
     let test_data = json!({"broadcast": "test", "value": 42});
@@ -86,7 +89,7 @@ async fn test_message_broadcasting() -> Result<()> {
 
 #[tokio::test]
 async fn test_node_discovery_interface() -> Result<()> {
-    let mut node = create_test_node_with_port(8008).await;
+    let mut node = create_test_node_with_port(0).await;
 
     // Test discovery methods exist and can be called
     let discovery_info = node.get_discovery_info().await;
@@ -102,7 +105,7 @@ async fn test_node_discovery_interface() -> Result<()> {
 
 #[tokio::test]
 async fn test_concurrent_message_creation() -> Result<()> {
-    let mut node = create_test_node_with_port(8009).await;
+    let mut node = create_test_node_with_port(0).await;
 
     // Create multiple messages sequentially instead of concurrently
     let mut messages = Vec::new();
@@ -131,7 +134,7 @@ async fn test_concurrent_message_creation() -> Result<()> {
 
 #[tokio::test]
 async fn test_node_state_persistence() -> Result<()> {
-    let mut node = create_test_node_with_port(8010).await;
+    let mut node = create_test_node_with_port(0).await;
 
     // Create some messages
     for i in 0..5 {
@@ -152,7 +155,7 @@ async fn test_node_state_persistence() -> Result<()> {
 
 #[tokio::test]
 async fn test_message_validation() -> Result<()> {
-    let mut node = create_test_node_with_port(8011).await;
+    let mut node = create_test_node_with_port(0).await;
 
     // Test various message types
     let test_cases = vec![
@@ -185,7 +188,7 @@ async fn test_message_validation() -> Result<()> {
 
 #[tokio::test]
 async fn test_node_lifecycle() -> Result<()> {
-    let mut node = create_test_node_with_port(8012).await;
+    let mut node = create_test_node_with_port(0).await;
 
     // Node should be running
     assert!(node.is_running_async().await);
@@ -322,7 +325,7 @@ async fn test_memory_efficiency() -> Result<()> {
 
 #[tokio::test]
 async fn test_message_serialization() -> Result<()> {
-    let mut node = create_test_node_with_port(8011).await;
+    let mut node = create_test_node_with_port(0).await;
 
     // Create a message with complex data
     let data = json!({

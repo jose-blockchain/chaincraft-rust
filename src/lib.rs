@@ -25,11 +25,13 @@ pub mod utils;
 // Re-exports
 pub use error::{ChaincraftError, Result};
 pub use network::{PeerId, PeerInfo};
-pub use node::ChaincraftNode;
+pub use node::{ChaincraftNode, clear_local_registry};
 pub use shared::{SharedMessage, SharedObject, SharedObjectId, SharedObjectRegistry};
 
 // Application object re-exports
-pub use shared_object::{ApplicationObject, ApplicationObjectRegistry, SimpleSharedNumber};
+pub use shared_object::{
+    ApplicationObject, ApplicationObjectRegistry, MerkelizedChain, MessageChain, SimpleSharedNumber,
+};
 
 // Version information
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

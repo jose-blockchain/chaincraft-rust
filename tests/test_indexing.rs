@@ -7,8 +7,38 @@ async fn create_indexed_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    // Use ephemeral port for single-node indexing tests (no peer connections needed)
+    node.set_port(0);
     node.start().await.unwrap();
     node
+}
+
+async fn create_indexed_network(num_nodes: usize, base_port: u16) -> Vec<ChaincraftNode> {
+    let mut nodes = Vec::new();
+    for i in 0..num_nodes {
+        let id = PeerId::new();
+        let storage = Arc::new(MemoryStorage::new());
+        let mut node = ChaincraftNode::new(id, storage);
+        let port = base_port + i as u16;
+        node.set_port(port);
+        node.start().await.unwrap();
+        nodes.push(node);
+    }
+    nodes
+}
+
+async fn connect_full_mesh(nodes: &mut [ChaincraftNode]) {
+    // Simple full-mesh connectivity to exercise multi-node indexing scenario
+    let len = nodes.len();
+    for i in 0..len {
+        for j in 0..len {
+            if i == j {
+                continue;
+            }
+            let addr = format!("{}:{}", nodes[j].host(), nodes[j].port());
+            let _ = nodes[i].connect_to_peer(&addr).await;
+        }
+    }
 }
 
 #[tokio::test]
@@ -151,4 +181,44 @@ async fn test_timestamp_indexing() {
     // assert!(true);
 
     node.close().await.unwrap();
+}
+
+/// Multi-node indexing test similar in spirit to the Python indexing + network tests.
+#[tokio::test]
+async fn test_indexing_across_nodes() {
+    // Use a dedicated base port range for this test
+    let mut nodes = create_indexed_network(3, 8800).await;
+    connect_full_mesh(&mut nodes).await;
+
+    // Create a few messages on node 0 that would be indexable types in a full indexing backend
+    let user_msg = json!({"message_type": "User", "username": "multi_node"});
+    let post_msg = json!({"message_type": "Post", "title": "Indexed across nodes"});
+
+    nodes[0]
+        .create_shared_message_with_data(user_msg.clone())
+        .await
+        .unwrap();
+    nodes[0]
+        .create_shared_message_with_data(post_msg.clone())
+        .await
+        .unwrap();
+
+    // Allow time for UDP propagation
+    sleep(Duration::from_secs(2)).await;
+
+    // All nodes should have at least 2 messages stored
+    for (i, node) in nodes.iter().enumerate() {
+        let count = node.db_size();
+        assert!(
+            count >= 2,
+            "expected node {} to see at least 2 messages, got {}",
+            i,
+            count
+        );
+    }
+
+    // Clean up
+    for mut node in nodes {
+        node.close().await.unwrap();
+    }
 }

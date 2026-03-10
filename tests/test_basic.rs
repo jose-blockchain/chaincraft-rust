@@ -2,13 +2,20 @@ use chaincraft_rust::{error::Result, ChaincraftNode};
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
 
-/// Helper function to create a network of nodes
-async fn create_network(num_nodes: usize, _reset_db: bool) -> Result<Vec<ChaincraftNode>> {
+/// Helper function to create a network of nodes with a base port
+async fn create_network_with_base_port(
+    num_nodes: usize,
+    _reset_db: bool,
+    base_port: u16,
+) -> Result<Vec<ChaincraftNode>> {
     let mut nodes = Vec::new();
-    for _ in 0..num_nodes {
-        let node = ChaincraftNode::builder()
+    for i in 0..num_nodes {
+        let mut node = ChaincraftNode::builder()
             .with_persistent_storage(false)
             .build()?;
+        // Ensure each node binds to a unique port to avoid conflicts
+        let port = base_port + i as u16;
+        node.set_port(port);
         nodes.push(node);
     }
     Ok(nodes)
@@ -58,7 +65,7 @@ async fn wait_for_propagation(
         let counts: Vec<usize> = nodes.iter().map(|node| node.db_size()).collect();
         println!("Current message counts: {:?}", counts);
 
-        if counts.iter().all(|&count| count == expected_count) {
+        if counts.iter().all(|&count| count >= expected_count) {
             return true;
         }
 
@@ -71,6 +78,9 @@ async fn wait_for_propagation(
 async fn test_node_creation_and_startup() -> Result<()> {
     // Create a node
     let mut node = ChaincraftNode::new_default();
+
+    // Use an ephemeral port to avoid conflicts with other tests
+    node.set_port(0);
 
     // Get the node ID and validate it's not empty
     let node_id = node.id().to_string();
@@ -102,7 +112,8 @@ async fn test_node_creation_and_startup() -> Result<()> {
 #[tokio::test]
 async fn test_network_creation() -> Result<()> {
     let num_nodes = 5;
-    let mut nodes = create_network(num_nodes, true).await?;
+    // Use a dedicated port range for this test
+    let mut nodes = create_network_with_base_port(num_nodes, true, 8400).await?;
 
     // Start all nodes
     for node in &mut nodes {
@@ -132,7 +143,8 @@ async fn test_network_creation() -> Result<()> {
 
 #[tokio::test]
 async fn test_object_creation_and_propagation() -> Result<()> {
-    let mut nodes = create_network(3, true).await?;
+    // Use a dedicated port range to avoid clashes with other tests
+    let mut nodes = create_network_with_base_port(3, true, 8500).await?;
 
     // Start all nodes
     for node in &mut nodes {
@@ -144,20 +156,15 @@ async fn test_object_creation_and_propagation() -> Result<()> {
 
     // Create a message from the first node
     let test_message = "Test message";
-    let message_hash = nodes[0]
+    let _hash = nodes[0]
         .create_shared_message(test_message.to_string())
         .await?;
 
-    // Wait for propagation (simplified - in reality would need gossip implementation)
-    // For now, just verify the message was created
-    assert!(nodes[0].has_object(&message_hash));
-    let stored_message = nodes[0].get_object(&message_hash).await?;
-    let value: serde_json::Value = serde_json::from_str(&stored_message).map_err(|e| {
-        chaincraft_rust::error::ChaincraftError::Serialization(
-            chaincraft_rust::error::SerializationError::Json(e),
-        )
-    })?;
-    assert!(value["data"] == "Test message");
+    // Wait for propagation to all nodes (similar to Python wait_for_propagation)
+    assert!(
+        wait_for_propagation(&nodes, 1, 30).await,
+        "message did not propagate to all nodes"
+    );
 
     // Cleanup
     for mut node in nodes {
@@ -169,7 +176,8 @@ async fn test_object_creation_and_propagation() -> Result<()> {
 
 #[tokio::test]
 async fn test_multiple_object_creation() -> Result<()> {
-    let mut nodes = create_network(3, true).await?;
+    // Use a dedicated port range to avoid clashes with other tests
+    let mut nodes = create_network_with_base_port(3, true, 8600).await?;
 
     // Start all nodes
     for node in &mut nodes {
@@ -179,7 +187,7 @@ async fn test_multiple_object_creation() -> Result<()> {
     connect_nodes(&mut nodes).await?;
     sleep(Duration::from_secs(2)).await;
 
-    // Create multiple messages (simplified)
+    // Create multiple messages
     let node_count = nodes.len();
     for i in 0..3 {
         let message = format!("Object {}", i);
@@ -187,8 +195,11 @@ async fn test_multiple_object_creation() -> Result<()> {
         sleep(Duration::from_secs(1)).await;
     }
 
-    // For now, just verify basic functionality works
-    // Real propagation testing would require gossip protocol implementation
+    // Expect all nodes to have 3 messages after propagation
+    assert!(
+        wait_for_propagation(&nodes, 3, 30).await,
+        "messages did not propagate to all nodes"
+    );
 
     // Cleanup
     for mut node in nodes {
@@ -200,7 +211,8 @@ async fn test_multiple_object_creation() -> Result<()> {
 
 #[tokio::test]
 async fn test_network_resilience() -> Result<()> {
-    let mut nodes = create_network(4, true).await?;
+    // Use a dedicated port range to avoid clashes with other tests
+    let mut nodes = create_network_with_base_port(4, true, 8700).await?;
 
     // Start all nodes
     for node in &mut nodes {

@@ -1,5 +1,6 @@
 use chaincraft_rust::examples::chatroom::{helpers, ChatroomObject};
 use chaincraft_rust::{
+    clear_local_registry,
     crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
     network::PeerId,
     shared_object::ApplicationObject,
@@ -11,9 +12,14 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 async fn create_node_with_chatroom() -> ChaincraftNode {
+    clear_local_registry();
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+
+    // Use ephemeral port to avoid conflicts
+    node.set_port(0);
+    node.disable_local_discovery();
 
     // Add a ChatroomObject to the node
     let chatroom_obj: Box<dyn ApplicationObject> = Box::new(ChatroomObject::new());

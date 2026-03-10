@@ -47,6 +47,7 @@ async fn create_test_node() -> ChaincraftNode {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
     node.start().await.expect("Failed to start node");
     node
 }
@@ -278,15 +279,21 @@ async fn test_empty_message_data() {
 
 #[tokio::test]
 async fn test_simple_string_message() -> Result<()> {
-    let mut nodes = vec![
+    let mut nodes: Vec<ChaincraftNode> = vec![
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
     ];
 
@@ -317,13 +324,19 @@ async fn test_simple_string_message() -> Result<()> {
 async fn test_simple_integer_message() -> Result<()> {
     let mut nodes = vec![
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
     ];
 
@@ -351,13 +364,19 @@ async fn test_simple_integer_message() -> Result<()> {
 async fn test_json_message() -> Result<()> {
     let mut nodes = vec![
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
     ];
 
@@ -395,13 +414,19 @@ async fn test_json_message() -> Result<()> {
 async fn test_complex_nested_message() -> Result<()> {
     let mut nodes = vec![
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
         ChaincraftNode::builder()
+            .port(0)
             .with_persistent_storage(false)
+            .persist_peers(false)
             .build()?,
     ];
 

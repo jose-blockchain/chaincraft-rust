@@ -17,6 +17,7 @@ async fn create_tendermint_node() -> (ChaincraftNode, TendermintObject) {
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0); // Use ephemeral port
 
     let tendermint_obj = TendermintObject::new().unwrap();
     let app_obj: Box<dyn ApplicationObject> = Box::new(tendermint_obj);

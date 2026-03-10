@@ -7,8 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-03-05
+
 ### Added
-- Initial release preparation
+- ECDSA-based VRF primitive (matches Python `crypto_primitives/vrf.py`)
+- Symmetric encryption (Fernet, Python-compatible) in `SymmetricEncryption`
+- `rand_core` feature for ed25519-dalek key generation
+
+### Changed
+- Removed libp2p dependency; all P2P/socket logic is in-house (UDP)
+- Updated `openssl-tls` feature (no longer depends on libp2p)
+
+### Removed
+- libp2p and libp2p-websocket dependencies
 
 ## [0.1.0] - 2025-06-11
 
@@ -44,5 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable resource limits
 - Optimized cryptographic operations
 
-[Unreleased]: https://github.com/jio-gl/chaincraft-rust/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/jio-gl/chaincraft-rust/releases/tag/v0.1.0 
+[Unreleased]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/jose-blockchain/chaincraft-rust/releases/tag/v0.1.0 

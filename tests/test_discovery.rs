@@ -1,11 +1,15 @@
-use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
+use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode, clear_local_registry};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 async fn create_node() -> ChaincraftNode {
+    clear_local_registry();
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
-    ChaincraftNode::new(id, storage)
+    let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0);
+    node.disable_local_discovery();
+    node
 }
 
 #[allow(dead_code)]
@@ -43,13 +47,21 @@ async fn wait_for_propagation(
 
 #[tokio::test]
 async fn test_single_node_no_peers() {
-    let mut node = create_node().await;
+    // Clear registry and disable local discovery for true isolation
+    clear_local_registry();
+    let id = PeerId::new();
+    let storage = Arc::new(MemoryStorage::new());
+    let mut node = ChaincraftNode::new(id, storage);
+    node.set_port(0);
+    node.disable_local_discovery(); // Disable to ensure no peers from other tests
+
     node.start().await.unwrap();
 
     sleep(Duration::from_secs(1)).await;
 
     let peers = node.get_peers().await;
-    assert_eq!(peers.len(), 0);
+    println!("Peers: {:?}", peers);
+    assert_eq!(peers.len(), 0, "Expected 0 peers but found {:?}", peers);
 
     node.close().await.unwrap();
 }

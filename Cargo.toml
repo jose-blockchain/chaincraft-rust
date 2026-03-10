@@ -1,22 +1,24 @@
 [package]
 name = "chaincraft-rust"
-version = "0.1.4"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.82"
 authors = ["Chaincraft Contributors"]
 license = "MIT"
 description = "A high-performance Rust-based platform for blockchain education and prototyping"
 readme = "README.md"
-homepage = "https://github.com/jio-gl/chaincraft-rust"
-repository = "https://github.com/jio-gl/chaincraft-rust"
+homepage = "https://github.com/jose-blockchain/chaincraft-rust"
+repository = "https://github.com/jose-blockchain/chaincraft-rust"
 documentation = "https://docs.rs/chaincraft-rust"
 keywords = ["blockchain", "education", "prototyping", "distributed", "consensus"]
 categories = ["network-programming", "cryptography", "science"]
 include = [
     "src/**/*",
+    "examples/**/*",
     "tests/**/*",
     "Cargo.toml",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE*",
 ]
 
@@ -45,16 +47,15 @@ bincode = "1.3"
 bytes = { version = "1.0", features = ["serde"] }
 serde_bytes = "0.11"
 
-# Networking
+# Networking (in-house UDP; no libp2p)
 socket2 = "0.5"
-libp2p = { version = "0.53", default-features = false, features = ["tcp", "dns", "websocket", "noise", "ping", "identify", "kad"] }
 
 # Cryptography
 sha2 = "0.10"
 sha3 = "0.10"
 blake3 = "1.5"
 ring = "0.17"
-ed25519-dalek = { version = "2.0", features = ["serde"] }
+ed25519-dalek = { version = "2.0", features = ["serde", "rand_core"] }
 k256 = { version = "0.13", features = ["serde", "ecdsa"] }
 rand = "0.8"
 rand_core = "0.6"
@@ -98,6 +99,9 @@ vdf = { version = "0.1", optional = true }
 # VRF (placeholders)
 vrf = "0.2"
 
+# Symmetric encryption (Fernet, Python-compatible)
+fernet = "0.2"
+
 [dev-dependencies]
 tokio-test = "0.4"
 criterion = "0.5"
@@ -110,7 +114,7 @@ persistent = ["dep:sled"]
 indexing = ["dep:sqlx"]
 compression = []
 vdf-crypto = ["dep:vdf"]
-openssl-tls = ["dep:openssl", "libp2p/tls"]
+openssl-tls = ["dep:openssl"]
 
 [target.'cfg(unix)'.dependencies]
 openssl = { version = "0.10", optional = true }

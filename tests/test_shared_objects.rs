@@ -1,4 +1,5 @@
 use chaincraft_rust::{
+    clear_local_registry,
     network::PeerId,
     shared_object::{ApplicationObject, SimpleSharedNumber},
     storage::MemoryStorage,
@@ -8,12 +9,16 @@ use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
 async fn create_network(num_nodes: usize) -> Vec<ChaincraftNode> {
+    clear_local_registry();
     let mut nodes = Vec::new();
 
     for _ in 0..num_nodes {
         let id = PeerId::new();
         let storage = Arc::new(MemoryStorage::new());
         let mut node = ChaincraftNode::new(id, storage);
+
+        node.set_port(0);
+        node.disable_local_discovery();
 
         // Add a SimpleSharedNumber object to each node
         let shared_number: Box<dyn ApplicationObject> = Box::new(SimpleSharedNumber::new());

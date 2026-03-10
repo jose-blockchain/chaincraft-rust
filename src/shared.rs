@@ -74,6 +74,14 @@ pub enum MessageType {
     Heartbeat,
     /// Error response
     Error,
+    /// Request latest digest for digest-based sync
+    RequestDigest,
+    /// Request messages since a digest
+    RequestMessagesSince,
+    /// Response with latest digest
+    DigestResponse,
+    /// Response with messages since digest
+    MessagesResponse,
     /// Custom application message
     Custom(String),
 }
@@ -134,6 +142,10 @@ impl<'de> Deserialize<'de> for MessageType {
                     "NOTIFICATION" => Ok(MessageType::Notification),
                     "HEARTBEAT" => Ok(MessageType::Heartbeat),
                     "ERROR" => Ok(MessageType::Error),
+                    "REQUEST_DIGEST" => Ok(MessageType::RequestDigest),
+                    "REQUEST_MESSAGES_SINCE" => Ok(MessageType::RequestMessagesSince),
+                    "DIGEST_RESPONSE" => Ok(MessageType::DigestResponse),
+                    "MESSAGES_RESPONSE" => Ok(MessageType::MessagesResponse),
                     _ => Ok(MessageType::Custom(value.to_string())),
                 }
             }
@@ -174,6 +186,10 @@ impl fmt::Display for MessageType {
             MessageType::Notification => write!(f, "NOTIFICATION"),
             MessageType::Heartbeat => write!(f, "HEARTBEAT"),
             MessageType::Error => write!(f, "ERROR"),
+            MessageType::RequestDigest => write!(f, "REQUEST_DIGEST"),
+            MessageType::RequestMessagesSince => write!(f, "REQUEST_MESSAGES_SINCE"),
+            MessageType::DigestResponse => write!(f, "DIGEST_RESPONSE"),
+            MessageType::MessagesResponse => write!(f, "MESSAGES_RESPONSE"),
             MessageType::Custom(name) => write!(f, "{}", name),
         }
     }

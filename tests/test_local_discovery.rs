@@ -1,0 +1,98 @@
+//! Tests for local discovery (in-process peer registry)
+//!
+//! Mirrors Python's test_local_discovery behavior.
+
+use chaincraft_rust::{
+    network::PeerId,
+    shared_object::SimpleSharedNumber,
+    storage::MemoryStorage,
+    ChaincraftNode, ApplicationObject, clear_local_registry,
+};
+use std::sync::Arc;
+use tokio::time::{sleep, Duration};
+
+async fn create_network(num_nodes: usize) -> Vec<ChaincraftNode> {
+    clear_local_registry();
+    let mut nodes = Vec::new();
+    for _ in 0..num_nodes {
+        let id = PeerId::new();
+        let storage = Arc::new(MemoryStorage::new());
+        let mut node = ChaincraftNode::new(id, storage);
+        node.set_port(0);
+        let shared: Box<dyn ApplicationObject> = Box::new(SimpleSharedNumber::new());
+        node.add_shared_object(shared).await.unwrap();
+        node.start().await.unwrap();
+        nodes.push(node);
+    }
+    nodes
+}
+
+async fn wait_for_peers(nodes: &[ChaincraftNode], min_peers: usize, timeout_secs: u64) -> bool {
+    let start = std::time::Instant::now();
+    while start.elapsed() < Duration::from_secs(timeout_secs) {
+        let mut ok = true;
+        for n in nodes {
+            if n.get_peers().await.len() < min_peers {
+                ok = false;
+                break;
+            }
+        }
+        if ok {
+            return true;
+        }
+        sleep(Duration::from_millis(200)).await;
+    }
+    false
+}
+
+#[tokio::test]
+async fn test_local_discovery_three_nodes() {
+    let mut nodes = create_network(3).await;
+    assert!(
+        wait_for_peers(&nodes, 2, 5).await,
+        "Local discovery should discover peers within 5s"
+    );
+
+    let mut peer_counts = Vec::new();
+    for n in &nodes {
+        peer_counts.push(n.get_peers().await.len());
+    }
+    assert!(
+        peer_counts.iter().all(|&c| c >= 2),
+        "Each node should discover at least 2 other nodes via local discovery; got {:?}",
+        peer_counts
+    );
+
+    nodes[0].create_shared_message_with_data(serde_json::json!(42)).await.unwrap();
+    sleep(Duration::from_secs(2)).await;
+
+    let counts: Vec<usize> = nodes.iter().map(|n| n.db_size()).collect();
+    assert!(counts.iter().all(|&c| c >= 1), "Message should propagate to all nodes; db_sizes: {:?}", counts);
+
+    for mut node in nodes {
+        node.close().await.unwrap();
+    }
+}
+
+#[tokio::test]
+async fn test_local_discovery_five_nodes() {
+    let nodes = create_network(5).await;
+    assert!(
+        wait_for_peers(&nodes, 4, 8).await,
+        "Local discovery should discover peers within 8s"
+    );
+
+    let mut peer_counts = Vec::new();
+    for n in &nodes {
+        peer_counts.push(n.get_peers().await.len());
+    }
+    assert!(
+        peer_counts.iter().all(|&c| c >= 4),
+        "Each node should discover 4 other nodes; got {:?}",
+        peer_counts
+    );
+
+    for mut node in nodes {
+        node.close().await.unwrap();
+    }
+}

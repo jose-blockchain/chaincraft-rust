@@ -118,6 +118,10 @@ pub enum CryptoError {
     #[error("VDF verification failed")]
     VdfVerificationFailed,
 
+    /// VDF error (solve/verify)
+    #[error("VDF error: {reason}")]
+    VdfError { reason: String },
+
     /// Key generation failed
     #[error("Key generation failed: {reason}")]
     KeyGenerationFailed { reason: String },

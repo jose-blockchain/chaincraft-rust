@@ -213,6 +213,416 @@ impl ApplicationObject for SimpleSharedNumber {
     }
 }
 
+/// Merkelized chain object (Rust analogue of Python SimpleChainObject)
+///
+/// Maintains an append-only chain of SHA256 hashes where each hash is derived from
+/// the previous hash. Supports digest-based synchronization for efficient
+/// state sync between nodes.
+#[derive(Debug, Clone)]
+pub struct MerkelizedChain {
+    id: SharedObjectId,
+    /// The chain of hashes (genesis is at index 0)
+    chain: Vec<String>,
+    /// Messages corresponding to each chain entry (optional payload)
+    messages: Vec<SharedMessage>,
+    /// Set of all hashes in the chain for O(1) lookup
+    hash_set: HashSet<String>,
+    created_at: chrono::DateTime<chrono::Utc>,
+}
+
+impl MerkelizedChain {
+    /// Create a new MerkelizedChain with a genesis hash
+    pub fn new() -> Self {
+        let genesis = Self::calculate_hash("genesis");
+        Self {
+            id: SharedObjectId::new(),
+            chain: vec![genesis.clone()],
+            messages: vec![SharedMessage::new(
+                MessageType::Custom("genesis".to_string()),
+                serde_json::json!("genesis"),
+            )],
+            hash_set: {
+                let mut set = HashSet::new();
+                set.insert(genesis);
+                set
+            },
+            created_at: chrono::Utc::now(),
+        }
+    }
+
+    /// Calculate the SHA256 hash of data (consistent with Python)
+    pub fn calculate_hash(data: &str) -> String {
+        let mut hasher = Sha256::new();
+        hasher.update(data.as_bytes());
+        hex::encode(hasher.finalize())
+    }
+
+    /// Calculate what the next hash should be given a previous hash
+    pub fn calculate_next_hash(prev_hash: &str) -> String {
+        Self::calculate_hash(prev_hash)
+    }
+
+    /// Get the current chain length (including genesis)
+    pub fn chain_length(&self) -> usize {
+        self.chain.len()
+    }
+
+    /// Get the genesis hash
+    pub fn genesis_hash(&self) -> &str {
+        &self.chain[0]
+    }
+
+    /// Get the latest (tip) hash
+    pub fn latest_hash(&self) -> &str {
+        self.chain.last().expect("chain is never empty")
+    }
+
+    /// Get a specific hash by index
+    pub fn hash_at(&self, index: usize) -> Option<&str> {
+        self.chain.get(index).map(|s| s.as_str())
+    }
+
+    /// Check if a hash is valid as the next hash in the chain
+    pub fn is_valid_next_hash(&self, hash: &str) -> bool {
+        let expected = Self::calculate_next_hash(self.latest_hash());
+        hash == expected
+    }
+
+    /// Add a next hash to the chain (returns the new hash)
+    pub fn add_next_hash(&mut self) -> String {
+        let next_hash = Self::calculate_next_hash(self.latest_hash());
+        self.chain.push(next_hash.clone());
+        self.hash_set.insert(next_hash.clone());
+        
+        // Create a message for this hash
+        let msg = SharedMessage::new(
+            MessageType::Custom("chain_update".to_string()),
+            serde_json::json!(next_hash),
+        );
+        self.messages.push(msg);
+        
+        next_hash
+    }
+
+    /// Try to add an existing hash to the chain (for sync from peers)
+    /// Returns true if the hash was added, false if invalid or duplicate
+    pub fn try_add_hash(&mut self, hash: &str) -> bool {
+        // Skip if already in chain
+        if self.hash_set.contains(hash) {
+            return false;
+        }
+
+        // Check if this hash follows from any hash in our chain
+        for i in 0..self.chain.len() {
+            let expected_next = Self::calculate_next_hash(&self.chain[i]);
+            if hash == expected_next {
+                self.chain.push(hash.to_string());
+                self.hash_set.insert(hash.to_string());
+                
+                let msg = SharedMessage::new(
+                    MessageType::Custom("chain_update".to_string()),
+                    serde_json::json!(hash),
+                );
+                self.messages.push(msg);
+                
+                return true;
+            }
+        }
+
+        false
+    }
+
+    /// Get the chain as a slice of hashes
+    pub fn chain(&self) -> &[String] {
+        &self.chain
+    }
+
+    /// Find the index of a hash in the chain
+    pub fn find_hash_index(&self, hash: &str) -> Option<usize> {
+        self.chain.iter().position(|h| h == hash)
+    }
+}
+
+impl Default for MerkelizedChain {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[async_trait]
+impl ApplicationObject for MerkelizedChain {
+    fn id(&self) -> &SharedObjectId {
+        &self.id
+    }
+
+    fn type_name(&self) -> &'static str {
+        "MerkelizedChain"
+    }
+
+    async fn is_valid(&self, message: &SharedMessage) -> Result<bool> {
+        // Accept string messages that are valid hashes
+        let Some(hash) = message.data.as_str() else {
+            return Ok(false);
+        };
+
+        // If already in chain, it's valid (for deduplication)
+        if self.hash_set.contains(hash) {
+            return Ok(true);
+        }
+
+        // Check if it's a valid next hash from any existing hash
+        for i in 0..self.chain.len() {
+            let expected_next = Self::calculate_next_hash(&self.chain[i]);
+            if hash == expected_next {
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+
+    async fn add_message(&mut self, message: SharedMessage) -> Result<()> {
+        let Some(hash) = message.data.as_str() else {
+            return Ok(());
+        };
+
+        // Skip if already in chain
+        if self.hash_set.contains(hash) {
+            return Ok(());
+        }
+
+        // Try to add to chain
+        if self.try_add_hash(hash) {
+            tracing::info!("MerkelizedChain: Added hash {} to chain (length: {})", 
+                &hash[..8.min(hash.len())], self.chain.len());
+        }
+
+        Ok(())
+    }
+
+    fn is_merkleized(&self) -> bool {
+        true
+    }
+
+    async fn get_latest_digest(&self) -> Result<String> {
+        Ok(self.latest_hash().to_string())
+    }
+
+    async fn has_digest(&self, digest: &str) -> Result<bool> {
+        Ok(self.hash_set.contains(digest))
+    }
+
+    async fn is_valid_digest(&self, digest: &str) -> Result<bool> {
+        Ok(self.hash_set.contains(digest) || self.is_valid_next_hash(digest))
+    }
+
+    async fn add_digest(&mut self, digest: String) -> Result<bool> {
+        if self.try_add_hash(&digest) {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
+    async fn gossip_messages(&self, digest: Option<&str>) -> Result<Vec<SharedMessage>> {
+        let start_index = match digest {
+            Some(hash) => {
+                match self.find_hash_index(hash) {
+                    Some(idx) => idx + 1, // Start after the given digest
+                    None => return Ok(Vec::new()), // Unknown digest
+                }
+            }
+            None => 1, // Skip genesis, return all subsequent
+        };
+
+        let mut result = Vec::new();
+        for i in start_index..self.chain.len() {
+            let msg = SharedMessage::new(
+                MessageType::Custom("chain_update".to_string()),
+                serde_json::json!(self.chain[i]),
+            );
+            result.push(msg);
+        }
+
+        Ok(result)
+    }
+
+    async fn get_messages_since_digest(&self, digest: &str) -> Result<Vec<SharedMessage>> {
+        self.gossip_messages(Some(digest)).await
+    }
+
+    async fn get_state(&self) -> Result<Value> {
+        Ok(serde_json::json!({
+            "chain_length": self.chain.len(),
+            "latest_hash": self.latest_hash(),
+            "genesis_hash": self.genesis_hash(),
+        }))
+    }
+
+    async fn reset(&mut self) -> Result<()> {
+        let genesis = Self::calculate_hash("genesis");
+        self.chain = vec![genesis.clone()];
+        self.hash_set = {
+            let mut set = HashSet::new();
+            set.insert(genesis);
+            set
+        };
+        self.messages = vec![SharedMessage::new(
+            MessageType::Custom("genesis".to_string()),
+            serde_json::json!("genesis"),
+        )];
+        Ok(())
+    }
+
+    fn clone_box(&self) -> Box<dyn ApplicationObject> {
+        Box::new(self.clone())
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+/// Message chain - append-only ordered log of messages.
+/// Mirrors Python message chain concept: ordered sequence of messages
+/// with digest-based sync support.
+#[derive(Debug, Clone)]
+pub struct MessageChain {
+    id: SharedObjectId,
+    messages: Vec<SharedMessage>,
+    seen_hashes: HashSet<String>,
+    digests: Vec<String>,
+}
+
+impl MessageChain {
+    pub fn new() -> Self {
+        Self {
+            id: SharedObjectId::new(),
+            messages: Vec::new(),
+            seen_hashes: HashSet::new(),
+            digests: Vec::new(),
+        }
+    }
+
+    pub fn len(&self) -> usize {
+        self.messages.len()
+    }
+
+    pub fn messages(&self) -> &[SharedMessage] {
+        &self.messages
+    }
+
+    fn msg_hash(msg: &SharedMessage) -> String {
+        msg.hash.clone()
+    }
+}
+
+impl Default for MessageChain {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[async_trait]
+impl ApplicationObject for MessageChain {
+    fn id(&self) -> &SharedObjectId {
+        &self.id
+    }
+
+    fn type_name(&self) -> &'static str {
+        "MessageChain"
+    }
+
+    async fn is_valid(&self, message: &SharedMessage) -> Result<bool> {
+        Ok(!message.data.is_null())
+    }
+
+    async fn add_message(&mut self, message: SharedMessage) -> Result<()> {
+        let h = Self::msg_hash(&message);
+        if self.seen_hashes.contains(&h) {
+            return Ok(());
+        }
+        self.seen_hashes.insert(h);
+        self.messages.push(message);
+        Ok(())
+    }
+
+    fn is_merkleized(&self) -> bool {
+        true
+    }
+
+    async fn get_latest_digest(&self) -> Result<String> {
+        Ok(self
+            .messages
+            .last()
+            .map(|m| m.hash.clone())
+            .unwrap_or_else(|| "genesis".to_string()))
+    }
+
+    async fn has_digest(&self, digest: &str) -> Result<bool> {
+        Ok(self.digests.contains(&digest.to_string())
+            || self.messages.iter().any(|m| m.hash == digest))
+    }
+
+    async fn is_valid_digest(&self, digest: &str) -> Result<bool> {
+        Ok(self.has_digest(digest).await?
+            || digest == "genesis"
+            || self.seen_hashes.contains(digest))
+    }
+
+    async fn add_digest(&mut self, _digest: String) -> Result<bool> {
+        Ok(false)
+    }
+
+    async fn gossip_messages(&self, digest: Option<&str>) -> Result<Vec<SharedMessage>> {
+        let start = match digest {
+            Some(d) if d != "genesis" => {
+                self.messages
+                    .iter()
+                    .position(|m| m.hash == d)
+                    .map(|i| i + 1)
+                    .unwrap_or(0)
+            }
+            _ => 0,
+        };
+        Ok(self.messages[start..].to_vec())
+    }
+
+    async fn get_messages_since_digest(&self, digest: &str) -> Result<Vec<SharedMessage>> {
+        self.gossip_messages(Some(digest)).await
+    }
+
+    async fn get_state(&self) -> Result<Value> {
+        Ok(serde_json::json!({
+            "length": self.messages.len(),
+            "message_count": self.messages.len()
+        }))
+    }
+
+    async fn reset(&mut self) -> Result<()> {
+        self.messages.clear();
+        self.seen_hashes.clear();
+        self.digests.clear();
+        Ok(())
+    }
+
+    fn clone_box(&self) -> Box<dyn ApplicationObject> {
+        Box::new(self.clone())
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
 /// Registry for managing application objects
 #[derive(Debug)]
 pub struct ApplicationObjectRegistry {

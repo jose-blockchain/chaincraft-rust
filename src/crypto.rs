@@ -2,6 +2,7 @@
 
 pub mod address;
 pub mod ecdsa;
+pub mod encrypt;
 pub mod hash;
 pub mod pow;
 pub mod vdf;
@@ -474,7 +475,9 @@ pub use address::Address;
 pub use ecdsa::EcdsaSignature;
 pub use hash::*;
 pub use pow::ProofOfWork;
-pub use vrf::VerifiableRandomFunction;
+pub use vdf::VerifiableDelayFunction;
+pub use vrf::{ECDSAVRF, VerifiableRandomFunction};
+pub use encrypt::SymmetricEncryption;
 
 #[cfg(test)]
 mod tests {
