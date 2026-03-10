@@ -24,7 +24,7 @@ A high-performance Rust-based platform for blockchain education and prototyping.
 - **High Performance**: Built with Rust for maximum performance and memory safety
 - **Educational Focus**: Well-documented code with clear explanations of blockchain concepts
 - **Modular Design**: Pluggable consensus mechanisms, storage backends, and network protocols
-- **Cryptographic Primitives**: Support for multiple signature schemes (Ed25519, ECDSA/secp256k1)
+- **Cryptographic Primitives**: Ed25519, ECDSA/secp256k1, VRF, Proof-of-Work, VDF, symmetric encryption (Fernet)
 - **Network Protocol**: P2P networking with peer discovery and message propagation
 - **Flexible Storage**: Memory and persistent storage options with optional SQLite indexing
 - **CLI Interface**: Easy-to-use command-line interface for node management
@@ -103,21 +103,20 @@ async fn main() -> Result<()> {
 
 ```rust
 use chaincraft_rust::{ChaincraftNode, Result};
-use chaincraft_rust::crypto::KeyType;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let mut node = ChaincraftNode::builder()
         .port(21000)
         .max_peers(50)
-        .enable_compression()
-        .enable_persistent_storage()
-        .key_type(KeyType::Ed25519)
+        .with_persistent_storage(true)  // requires feature "persistent"
+        .local_discovery(true)
+        .persist_peers(true)
         .build()?;
 
     node.start().await?;
     
-    // Node is now running with persistent storage and compression enabled
+    // Node is now running with persistent storage and local discovery
     
     Ok(())
 }
@@ -204,13 +203,13 @@ chaincraft-rust = { version = "0.2.1", features = ["persistent", "indexing"] }
 
 ### Prerequisites
 
-- Rust 1.70 or later
+- Rust 1.82 or later
 - Git
 
 ### Building
 
 ```bash
-git clone https://github.com/chaincraft-org/chaincraft-rust.git
+git clone https://github.com/jose-blockchain/chaincraft-rust.git
 cd chaincraft-rust
 cargo build
 ```
@@ -224,8 +223,8 @@ cargo test
 # Run tests with all features enabled
 cargo test --all-features
 
-# Run integration tests
-cargo test --test integration
+# Run example integration tests
+cargo test --test examples_integration
 ```
 
 ### Running Benchmarks
@@ -272,7 +271,7 @@ cargo run --example shared_objects_example
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions via pull requests.
 
 ### Development Workflow
 
@@ -324,4 +323,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-For more information, visit our [documentation](https://docs.rs/chaincraft-rust) or [repository](https://github.com/chaincraft-org/chaincraft-rust). 
+For more information, visit our [documentation](https://docs.rs/chaincraft-rust) or [repository](https://github.com/jose-blockchain/chaincraft-rust). 
