@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-03-10
+
+### Fixed
+- VDF tests for CI (`--all-features`): iteration minimum 66, conditional test for feature-off case
+- CI: install libgmp-dev for vdf-crypto feature
+
 ## [0.2.0] - 2025-03-05
 
 ### Added
@@ -55,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable resource limits
 - Optimized cryptographic operations
 
-[Unreleased]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jose-blockchain/chaincraft-rust/releases/tag/v0.1.0 
