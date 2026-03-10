@@ -11,7 +11,6 @@
 
 [![Rust](https://img.shields.io/badge/rust-1.82%2B-orange.svg)](https://www.rust-lang.org/)
 [![Crates.io Downloads](https://img.shields.io/crates/d/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
-[![Dependencies](https://img.shields.io/librariesio/release/crates/chaincraft-rust)](https://libraries.io/crates/chaincraft-rust)
 
 </div>
 
