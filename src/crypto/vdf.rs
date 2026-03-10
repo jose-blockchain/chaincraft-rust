@@ -75,6 +75,7 @@ impl Default for VerifiableDelayFunction {
 mod tests {
     use super::*;
 
+    #[cfg(not(feature = "vdf-crypto"))]
     #[test]
     fn test_vdf_without_feature_returns_error() {
         let vdf = VerifiableDelayFunction::new();
@@ -88,7 +89,7 @@ mod tests {
     fn test_vdf_solve_and_verify() {
         let vdf = VerifiableDelayFunction::with_bits(1024);
         let challenge = b"test";
-        let iterations = 10u64;
+        let iterations = 66u64; // Pietrzak requires at least 66 iterations
         let solution = vdf.solve(challenge, iterations).expect("solve");
         assert!(!solution.is_empty());
         assert!(vdf.verify(challenge, iterations, &solution).unwrap());
