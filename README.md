@@ -2,7 +2,7 @@
 
 # Chaincraft Rust
 
-**A high-performance Rust-based platform for blockchain education and prototyping**
+**Chaincraft: A high-performance library for blockchain prototyping and production-ready decentralized protocols**
 
 [![Crates.io](https://img.shields.io/crates/v/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
 [![Documentation](https://docs.rs/chaincraft-rust/badge.svg)](https://docs.rs/chaincraft-rust)
