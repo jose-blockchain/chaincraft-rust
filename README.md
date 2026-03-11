@@ -16,7 +16,7 @@
 
 ## Overview
 
-A high-performance Rust-based platform for blockchain education and prototyping. Chaincraft Rust provides a clean, well-documented implementation of core blockchain concepts with a focus on performance, security, and educational value.
+Chaincraft: A high-performance library for blockchain prototyping and production-ready decentralized protocols. Chaincraft Rust provides a clean, well-documented implementation of core blockchain concepts with a focus on performance, security, and production-stability.
 
 ## Features
 
