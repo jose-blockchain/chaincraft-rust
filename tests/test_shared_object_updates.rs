@@ -5,9 +5,11 @@
 use chaincraft_rust::{
     clear_local_registry,
     network::PeerId,
+    shared::MessageType,
+    shared::SharedMessage,
     shared_object::{ApplicationObject, MerkelizedChain},
     storage::MemoryStorage,
-    ChaincraftNode, shared::SharedMessage, shared::MessageType,
+    ChaincraftNode,
 };
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
@@ -146,7 +148,7 @@ async fn test_shared_object_chain_propagation() {
             .unwrap();
         MerkelizedChain::calculate_next_hash(chain.latest_hash())
     };
-    
+
     // Broadcast the first hash
     add_hash_and_broadcast(&mut nodes[0], &next_hash).await;
     sleep(Duration::from_millis(100)).await;
@@ -184,8 +186,7 @@ async fn test_shared_object_chain_propagation() {
     // Wait for all nodes to sync
     assert!(
         wait_for_chain_sync(&nodes, expected_length, 30).await,
-        "Chain did not sync to expected length {} within timeout",
-        expected_length
+        "Chain did not sync to expected length {expected_length} within timeout"
     );
 
     // Verify all nodes have the same chain
@@ -209,23 +210,19 @@ async fn test_shared_object_chain_propagation() {
             .downcast_mut::<MerkelizedChain>()
             .unwrap();
 
-        assert_eq!(
-            chain.chain_length(),
-            expected_length,
-            "Node {} has incorrect chain length",
-            i
-        );
+        assert_eq!(chain.chain_length(), expected_length, "Node {i} has incorrect chain length");
 
         // Verify chain prefix matches
-        let node_chain: Vec<String> = chain.chain().iter().take(expected_length).cloned().collect();
-        assert_eq!(
-            node_chain, first_chain,
-            "Node {} chain doesn't match expected prefix",
-            i
-        );
+        let node_chain: Vec<String> = chain
+            .chain()
+            .iter()
+            .take(expected_length)
+            .cloned()
+            .collect();
+        assert_eq!(node_chain, first_chain, "Node {i} chain doesn't match expected prefix");
     }
 
-    println!("All {} nodes synced to chain length {}!", num_nodes, expected_length);
+    println!("All {num_nodes} nodes synced to chain length {expected_length}!");
 
     // Cleanup
     for mut node in nodes {
@@ -268,10 +265,7 @@ async fn test_digest_based_sync() {
     };
     add_hash_and_broadcast(&mut nodes[0], &hash2).await;
 
-    assert!(
-        wait_for_chain_sync(&nodes, 3, 30).await,
-        "Chain did not sync to length >= 3"
-    );
+    assert!(wait_for_chain_sync(&nodes, 3, 30).await, "Chain did not sync to length >= 3");
 
     // Test gossip_messages functionality
     let mut shared_objects = nodes[0].shared_objects().await;
@@ -282,7 +276,7 @@ async fn test_digest_based_sync() {
         chain.genesis_hash().to_string()
     };
     let messages = obj.gossip_messages(Some(&genesis)).await.unwrap();
-    
+
     assert!(!messages.is_empty(), "Should have messages after genesis");
     println!("Got {} messages since genesis", messages.len());
 
@@ -321,10 +315,7 @@ async fn test_chain_hash_validation() {
         serde_json::json!(next_hash),
     );
 
-    assert!(
-        chain.is_valid(&valid_msg).await.unwrap(),
-        "Should accept valid next hash"
-    );
+    assert!(chain.is_valid(&valid_msg).await.unwrap(), "Should accept valid next hash");
 
     // Verify invalid hash is rejected
     let invalid_hash = "invalid_hash_not_following_chain";
@@ -333,10 +324,7 @@ async fn test_chain_hash_validation() {
         serde_json::json!(invalid_hash),
     );
 
-    assert!(
-        !chain.is_valid(&invalid_msg).await.unwrap(),
-        "Should reject invalid hash"
-    );
+    assert!(!chain.is_valid(&invalid_msg).await.unwrap(), "Should reject invalid hash");
 
     node.close().await.unwrap();
 }

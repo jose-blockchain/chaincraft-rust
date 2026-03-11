@@ -25,7 +25,8 @@ async fn main() -> Result<()> {
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
     node.set_port(0);
-    node.add_shared_object(Box::new(ECDSALedgerObject::new())).await?;
+    node.add_shared_object(Box::new(ECDSALedgerObject::new()))
+        .await?;
     node.start().await?;
 
     let alice = ECDSASigner::new()?;
@@ -34,13 +35,7 @@ async fn main() -> Result<()> {
     let bob_pk = bob.get_public_key_pem()?;
 
     // Alice "mints" 100 (first tx from new address)
-    let tx1 = helpers::create_transfer(
-        alice_pk.clone(),
-        bob_pk.clone(),
-        50,
-        0,
-        &alice,
-    )?;
+    let tx1 = helpers::create_transfer(alice_pk.clone(), bob_pk.clone(), 50, 0, &alice)?;
     node.create_shared_message_with_data(tx1).await?;
     println!("Alice -> Bob: 50 (first tx = mint)");
     sleep(Duration::from_millis(200)).await;

@@ -1,9 +1,7 @@
 //! Tests for persisted peers and banned peers (PEERS / BANNED_PEERS in DB)
 
 use chaincraft_rust::{
-    network::PeerId,
-    storage::MemoryStorage,
-    ChaincraftNode, clear_local_registry,
+    clear_local_registry, network::PeerId, storage::MemoryStorage, ChaincraftNode,
 };
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -63,7 +61,10 @@ async fn test_persisted_peers_reload() {
     node2.disable_local_discovery();
     node2.start().await.unwrap();
 
-    node1.connect_to_peer(&format!("127.0.0.1:{}", node2.port())).await.unwrap();
+    node1
+        .connect_to_peer(&format!("127.0.0.1:{}", node2.port()))
+        .await
+        .unwrap();
     let peers_before = node1.get_peers().await;
     assert!(!peers_before.is_empty());
     node1.close().await.unwrap();

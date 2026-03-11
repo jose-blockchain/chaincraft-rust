@@ -175,9 +175,9 @@ async fn test_round_finalization() {
     // Register enough validators to meet threshold
     for i in 1..=4 {
         let validator = BeaconValidator {
-            address: format!("validator{}", i),
-            public_key: format!("pubkey{}", i),
-            vrf_key: format!("vrfkey{}", i),
+            address: format!("validator{i}"),
+            public_key: format!("pubkey{i}"),
+            vrf_key: format!("vrfkey{i}"),
             stake: 1000,
             active: true,
             last_participation: None,
@@ -190,10 +190,10 @@ async fn test_round_finalization() {
         let vrf_msg = BeaconMessageType::VrfProof {
             round: 1,
             input: "test_input".to_string(),
-            proof: format!("proof_{}", i),
-            output: format!("output_{}", i),
-            validator: format!("validator{}", i),
-            signature: format!("sig_{}", i),
+            proof: format!("proof_{i}"),
+            output: format!("output_{i}"),
+            validator: format!("validator{i}"),
+            signature: format!("sig_{i}"),
             timestamp: chrono::Utc::now(),
         };
         beacon.process_vrf_proof(vrf_msg).unwrap();
@@ -203,9 +203,9 @@ async fn test_round_finalization() {
     for i in 1..=3 {
         let partial_sig_msg = BeaconMessageType::PartialSignature {
             round: 1,
-            validator: format!("validator{}", i),
-            partial_sig: format!("partial_sig_{}", i),
-            signature: format!("sig_{}", i),
+            validator: format!("validator{i}"),
+            partial_sig: format!("partial_sig_{i}"),
+            signature: format!("sig_{i}"),
             timestamp: chrono::Utc::now(),
         };
         beacon.process_partial_signature(partial_sig_msg).unwrap();
@@ -252,9 +252,9 @@ async fn test_beacon_statistics() {
     // Add some state
     for i in 1..=3 {
         let validator = BeaconValidator {
-            address: format!("validator{}", i),
-            public_key: format!("pubkey{}", i),
-            vrf_key: format!("vrfkey{}", i),
+            address: format!("validator{i}"),
+            public_key: format!("pubkey{i}"),
+            vrf_key: format!("vrfkey{i}"),
             stake: 1000,
             active: true,
             last_participation: None,
@@ -368,9 +368,9 @@ async fn test_beacon_reset() {
     beacon.current_round = 5;
     for i in 1..=3 {
         let validator = BeaconValidator {
-            address: format!("validator{}", i),
-            public_key: format!("pubkey{}", i),
-            vrf_key: format!("vrfkey{}", i),
+            address: format!("validator{i}"),
+            public_key: format!("pubkey{i}"),
+            vrf_key: format!("vrfkey{i}"),
             stake: 1000,
             active: true,
             last_participation: None,
@@ -400,9 +400,9 @@ async fn test_threshold_requirement() {
     // Register validators below threshold
     for i in 1..=2 {
         let validator = BeaconValidator {
-            address: format!("validator{}", i),
-            public_key: format!("pubkey{}", i),
-            vrf_key: format!("vrfkey{}", i),
+            address: format!("validator{i}"),
+            public_key: format!("pubkey{i}"),
+            vrf_key: format!("vrfkey{i}"),
             stake: 1000,
             active: true,
             last_participation: None,
@@ -415,19 +415,19 @@ async fn test_threshold_requirement() {
         let vrf_msg = BeaconMessageType::VrfProof {
             round: 1,
             input: "test_input".to_string(),
-            proof: format!("proof_{}", i),
-            output: format!("output_{}", i),
-            validator: format!("validator{}", i),
-            signature: format!("sig_{}", i),
+            proof: format!("proof_{i}"),
+            output: format!("output_{i}"),
+            validator: format!("validator{i}"),
+            signature: format!("sig_{i}"),
             timestamp: chrono::Utc::now(),
         };
         beacon.process_vrf_proof(vrf_msg).unwrap();
 
         let partial_sig_msg = BeaconMessageType::PartialSignature {
             round: 1,
-            validator: format!("validator{}", i),
-            partial_sig: format!("partial_sig_{}", i),
-            signature: format!("sig_{}", i),
+            validator: format!("validator{i}"),
+            partial_sig: format!("partial_sig_{i}"),
+            signature: format!("sig_{i}"),
             timestamp: chrono::Utc::now(),
         };
         beacon.process_partial_signature(partial_sig_msg).unwrap();

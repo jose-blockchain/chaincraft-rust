@@ -3,10 +3,8 @@
 //! Mirrors Python's test_local_discovery behavior.
 
 use chaincraft_rust::{
-    network::PeerId,
-    shared_object::SimpleSharedNumber,
-    storage::MemoryStorage,
-    ChaincraftNode, ApplicationObject, clear_local_registry,
+    clear_local_registry, network::PeerId, shared_object::SimpleSharedNumber,
+    storage::MemoryStorage, ApplicationObject, ChaincraftNode,
 };
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
@@ -59,15 +57,20 @@ async fn test_local_discovery_three_nodes() {
     }
     assert!(
         peer_counts.iter().all(|&c| c >= 2),
-        "Each node should discover at least 2 other nodes via local discovery; got {:?}",
-        peer_counts
+        "Each node should discover at least 2 other nodes via local discovery; got {peer_counts:?}"
     );
 
-    nodes[0].create_shared_message_with_data(serde_json::json!(42)).await.unwrap();
+    nodes[0]
+        .create_shared_message_with_data(serde_json::json!(42))
+        .await
+        .unwrap();
     sleep(Duration::from_secs(2)).await;
 
     let counts: Vec<usize> = nodes.iter().map(|n| n.db_size()).collect();
-    assert!(counts.iter().all(|&c| c >= 1), "Message should propagate to all nodes; db_sizes: {:?}", counts);
+    assert!(
+        counts.iter().all(|&c| c >= 1),
+        "Message should propagate to all nodes; db_sizes: {counts:?}"
+    );
 
     for mut node in nodes {
         node.close().await.unwrap();
@@ -88,8 +91,7 @@ async fn test_local_discovery_five_nodes() {
     }
     assert!(
         peer_counts.iter().all(|&c| c >= 4),
-        "Each node should discover 4 other nodes; got {:?}",
-        peer_counts
+        "Each node should discover 4 other nodes; got {peer_counts:?}"
     );
 
     for mut node in nodes {

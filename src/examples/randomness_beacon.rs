@@ -314,7 +314,7 @@ impl RandomnessBeaconObject {
         // Create threshold signature (simplified)
         let mut threshold_sig = String::new();
         for (validator, sig) in &partial_sigs {
-            threshold_sig.push_str(&format!("{}:{};", validator, sig));
+            threshold_sig.push_str(&format!("{validator}:{sig};"));
         }
 
         let participants: Vec<String> = vrf_proofs.iter().map(|p| p.validator.clone()).collect();
@@ -329,7 +329,7 @@ impl RandomnessBeaconObject {
             bias_challenges: self
                 .challenges
                 .get(&self.current_round)
-                .map(|challenges| challenges.iter().map(|c| format!("{:?}", c)).collect())
+                .map(|challenges| challenges.iter().map(|c| format!("{c:?}")).collect())
                 .unwrap_or_default(),
         };
 
@@ -586,7 +586,7 @@ pub mod helpers {
         stake: u64,
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
-        let signature_data = format!("register:{}:{}:{}:{}", validator, public_key, vrf_key, stake);
+        let signature_data = format!("register:{validator}:{public_key}:{vrf_key}:{stake}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let registration = BeaconMessageType::ValidatorRegistration {
@@ -609,7 +609,7 @@ pub mod helpers {
         validator: String,
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
-        let signature_data = format!("vrf:{}:{}:{}:{}", round, input, proof, output);
+        let signature_data = format!("vrf:{round}:{input}:{proof}:{output}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let vrf_msg = BeaconMessageType::VrfProof {
@@ -632,7 +632,7 @@ pub mod helpers {
         partial_sig: String,
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
-        let signature_data = format!("partial_sig:{}:{}:{}", round, validator, partial_sig);
+        let signature_data = format!("partial_sig:{round}:{validator}:{partial_sig}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let partial_sig_msg = BeaconMessageType::PartialSignature {
@@ -655,7 +655,7 @@ pub mod helpers {
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
         let signature_data =
-            format!("challenge:{}:{}:{}:{}", round, challenger, target_validator, challenge_data);
+            format!("challenge:{round}:{challenger}:{target_validator}:{challenge_data}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let challenge = BeaconMessageType::BiasChallenge {

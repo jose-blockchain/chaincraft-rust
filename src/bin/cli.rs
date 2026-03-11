@@ -4,8 +4,8 @@
 
 use chaincraft_rust::{ChaincraftNode, Result};
 use clap::{Parser, Subcommand};
-use tracing::{info, Level};
 use tokio::io::{AsyncBufReadExt, BufReader};
+use tracing::{info, Level};
 
 #[derive(Parser)]
 #[command(name = "chaincraft-cli")]
@@ -137,7 +137,7 @@ async fn main() -> Result<()> {
 
             use chaincraft_rust::crypto::address::Address;
             let address = Address::from_public_key(&public_key);
-            println!("Address: {}", address);
+            println!("Address: {address}");
         },
         Some(Commands::Version) => {
             println!("ChainCraft Rust v{}", chaincraft_rust::VERSION);

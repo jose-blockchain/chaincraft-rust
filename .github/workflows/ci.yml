@@ -45,6 +45,12 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-cargo-
 
+    - name: Check formatting
+      run: cargo fmt --all -- --check
+
+    - name: Clippy
+      run: cargo clippy --all-features --all-targets -- -D warnings
+
     - name: Build
       uses: actions-rs/cargo@v1
       env:

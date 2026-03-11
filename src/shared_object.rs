@@ -293,14 +293,14 @@ impl MerkelizedChain {
         let next_hash = Self::calculate_next_hash(self.latest_hash());
         self.chain.push(next_hash.clone());
         self.hash_set.insert(next_hash.clone());
-        
+
         // Create a message for this hash
         let msg = SharedMessage::new(
             MessageType::Custom("chain_update".to_string()),
             serde_json::json!(next_hash),
         );
         self.messages.push(msg);
-        
+
         next_hash
     }
 
@@ -318,13 +318,13 @@ impl MerkelizedChain {
             if hash == expected_next {
                 self.chain.push(hash.to_string());
                 self.hash_set.insert(hash.to_string());
-                
+
                 let msg = SharedMessage::new(
                     MessageType::Custom("chain_update".to_string()),
                     serde_json::json!(hash),
                 );
                 self.messages.push(msg);
-                
+
                 return true;
             }
         }
@@ -393,8 +393,11 @@ impl ApplicationObject for MerkelizedChain {
 
         // Try to add to chain
         if self.try_add_hash(hash) {
-            tracing::info!("MerkelizedChain: Added hash {} to chain (length: {})", 
-                &hash[..8.min(hash.len())], self.chain.len());
+            tracing::info!(
+                "MerkelizedChain: Added hash {} to chain (length: {})",
+                &hash[..8.min(hash.len())],
+                self.chain.len()
+            );
         }
 
         Ok(())
@@ -428,10 +431,10 @@ impl ApplicationObject for MerkelizedChain {
         let start_index = match digest {
             Some(hash) => {
                 match self.find_hash_index(hash) {
-                    Some(idx) => idx + 1, // Start after the given digest
+                    Some(idx) => idx + 1,          // Start after the given digest
                     None => return Ok(Vec::new()), // Unknown digest
                 }
-            }
+            },
             None => 1, // Skip genesis, return all subsequent
         };
 
@@ -512,6 +515,10 @@ impl MessageChain {
         self.messages.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.messages.is_empty()
+    }
+
     pub fn messages(&self) -> &[SharedMessage] {
         &self.messages
     }
@@ -580,13 +587,12 @@ impl ApplicationObject for MessageChain {
 
     async fn gossip_messages(&self, digest: Option<&str>) -> Result<Vec<SharedMessage>> {
         let start = match digest {
-            Some(d) if d != "genesis" => {
-                self.messages
-                    .iter()
-                    .position(|m| m.hash == d)
-                    .map(|i| i + 1)
-                    .unwrap_or(0)
-            }
+            Some(d) if d != "genesis" => self
+                .messages
+                .iter()
+                .position(|m| m.hash == d)
+                .map(|i| i + 1)
+                .unwrap_or(0),
             _ => 0,
         };
         Ok(self.messages[start..].to_vec())

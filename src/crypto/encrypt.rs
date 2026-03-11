@@ -18,10 +18,11 @@ impl SymmetricEncryption {
             None => Fernet::generate_key(),
             Some(k) => k.to_string(),
         };
-        let fernet = Fernet::new(&key)
-            .ok_or_else(|| ChaincraftError::Crypto(CryptoError::EncryptionFailed {
+        let fernet = Fernet::new(&key).ok_or_else(|| {
+            ChaincraftError::Crypto(CryptoError::EncryptionFailed {
                 reason: "Invalid Fernet key".to_string(),
-            }))?;
+            })
+        })?;
         Ok(Self { fernet, key })
     }
 
@@ -72,7 +73,7 @@ impl SymmetricEncryption {
         })?;
         String::from_utf8(bytes).map_err(|e| {
             ChaincraftError::Crypto(CryptoError::DecryptionFailed {
-                reason: format!("Invalid UTF-8: {}", e),
+                reason: format!("Invalid UTF-8: {e}"),
             })
         })
     }

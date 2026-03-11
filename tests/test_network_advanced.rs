@@ -179,7 +179,7 @@ async fn test_message_validation() -> Result<()> {
         let value: serde_json::Value = serde_json::from_str(&message_json)
             .map_err(|e| ChaincraftError::Serialization(SerializationError::Json(e)))?;
         let data_field = value["data"].to_string();
-        assert_eq!(data_field, data.to_string(), "Test case {} failed", i);
+        assert_eq!(data_field, data.to_string(), "Test case {i} failed");
     }
 
     node.close().await.unwrap();

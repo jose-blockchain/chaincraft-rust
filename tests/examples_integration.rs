@@ -107,8 +107,8 @@ async fn test_shared_objects_example_network() {
 
 #[tokio::test]
 async fn test_randomness_beacon_example_starts() {
-    let beacon = chaincraft_rust::examples::randomness_beacon::RandomnessBeaconObject::new(60, 2)
-        .unwrap();
+    let beacon =
+        chaincraft_rust::examples::randomness_beacon::RandomnessBeaconObject::new(60, 2).unwrap();
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
@@ -154,7 +154,9 @@ async fn test_ecdsa_ledger_example_signed_transfers() {
     sleep(Duration::from_millis(100)).await;
 
     let objs = node.shared_objects().await;
-    let ledger = objs.first().and_then(|o| o.as_any().downcast_ref::<ECDSALedgerObject>());
+    let ledger = objs
+        .first()
+        .and_then(|o| o.as_any().downcast_ref::<ECDSALedgerObject>());
     assert!(ledger.is_some());
     let ledger = ledger.unwrap();
     assert_eq!(ledger.entries().len(), 2);

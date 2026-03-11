@@ -473,11 +473,11 @@ pub mod ed25519_utils {
 // Re-export commonly used types
 pub use address::Address;
 pub use ecdsa::EcdsaSignature;
+pub use encrypt::SymmetricEncryption;
 pub use hash::*;
 pub use pow::ProofOfWork;
 pub use vdf::VerifiableDelayFunction;
-pub use vrf::{ECDSAVRF, VerifiableRandomFunction};
-pub use encrypt::SymmetricEncryption;
+pub use vrf::{VerifiableRandomFunction, ECDSAVRF};
 
 #[cfg(test)]
 mod tests {

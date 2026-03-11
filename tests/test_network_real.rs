@@ -1,9 +1,5 @@
 use anyhow::Result;
-use chaincraft_rust::{
-    network::PeerId,
-    storage::MemoryStorage,
-    ChaincraftNode,
-};
+use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration, Instant};
@@ -84,4 +80,3 @@ async fn test_message_propagation_three_nodes() -> Result<()> {
     node3.close().await.unwrap();
     Ok(())
 }
-

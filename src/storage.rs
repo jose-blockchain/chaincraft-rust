@@ -19,6 +19,11 @@ pub trait Storage: Send + Sync {
     async fn initialize(&self) -> Result<()>;
     /// Return the number of stored keys (best-effort for non-in-memory backends).
     async fn len(&self) -> Result<usize>;
+
+    /// Return true if storage has no keys.
+    async fn is_empty(&self) -> Result<bool> {
+        self.len().await.map(|n| n == 0)
+    }
 }
 
 /// In-memory storage implementation
@@ -87,10 +92,8 @@ pub struct SledStorage {
 impl SledStorage {
     /// Open or create a sled database at the given path.
     pub fn open<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let db = sled::open(path).map_err(|e| {
-            StorageError::DatabaseOperation {
-                reason: e.to_string(),
-            }
+        let db = sled::open(path).map_err(|e| StorageError::DatabaseOperation {
+            reason: e.to_string(),
         })?;
         Ok(Self { db })
     }
@@ -138,12 +141,12 @@ impl Storage for SledStorage {
     }
 
     async fn exists(&self, key: &str) -> Result<bool> {
-        let res = self
-            .db
-            .contains_key(key.as_bytes())
-            .map_err(|e| StorageError::DatabaseOperation {
-                reason: e.to_string(),
-            })?;
+        let res =
+            self.db
+                .contains_key(key.as_bytes())
+                .map_err(|e| StorageError::DatabaseOperation {
+                    reason: e.to_string(),
+                })?;
         Ok(res)
     }
 

@@ -3,6 +3,7 @@
 //! Simplified VRF using ECDSA secp256k1:
 //! - Proof = ECDSA signature on input
 //! - VRF output = SHA256(proof), used as randomness
+//!
 //! This is a mocked VRF approach, not a real production VRF.
 
 use crate::error::{ChaincraftError, CryptoError, Result};
@@ -26,10 +27,11 @@ impl ECDSAVRF {
 
     /// Create from existing signing key bytes
     pub fn from_signing_key_bytes(bytes: &[u8]) -> Result<Self> {
-        let signing_key = SigningKey::from_slice(bytes)
-            .map_err(|_| ChaincraftError::Crypto(CryptoError::InvalidPrivateKey {
+        let signing_key = SigningKey::from_slice(bytes).map_err(|_| {
+            ChaincraftError::Crypto(CryptoError::InvalidPrivateKey {
                 reason: "Invalid secp256k1 key".to_string(),
-            }))?;
+            })
+        })?;
         Ok(Self { signing_key })
     }
 
@@ -45,9 +47,8 @@ impl ECDSAVRF {
         let sig = k256::ecdsa::Signature::from_slice(proof)
             .map_err(|_| ChaincraftError::Crypto(CryptoError::InvalidSignature))?;
         let vk = VerifyingKey::from(&self.signing_key);
-        vk.verify(data, &sig).map_err(|_| {
-            ChaincraftError::Crypto(CryptoError::VrfVerificationFailed)
-        })?;
+        vk.verify(data, &sig)
+            .map_err(|_| ChaincraftError::Crypto(CryptoError::VrfVerificationFailed))?;
         Ok(Self::vrf_output(proof))
     }
 
@@ -73,16 +74,16 @@ impl ECDSAVRF {
         proof: &[u8],
     ) -> Result<Vec<u8>> {
         use k256::ecdsa::{signature::Verifier, VerifyingKey};
-        let pk = k256::PublicKey::from_sec1_bytes(public_key_bytes)
-            .map_err(|_| ChaincraftError::Crypto(CryptoError::InvalidPublicKey {
+        let pk = k256::PublicKey::from_sec1_bytes(public_key_bytes).map_err(|_| {
+            ChaincraftError::Crypto(CryptoError::InvalidPublicKey {
                 reason: "Invalid secp256k1 public key".to_string(),
-            }))?;
+            })
+        })?;
         let vk = VerifyingKey::from(pk);
         let sig = k256::ecdsa::Signature::from_slice(proof)
             .map_err(|_| ChaincraftError::Crypto(CryptoError::InvalidSignature))?;
-        vk.verify(data, &sig).map_err(|_| {
-            ChaincraftError::Crypto(CryptoError::VrfVerificationFailed)
-        })?;
+        vk.verify(data, &sig)
+            .map_err(|_| ChaincraftError::Crypto(CryptoError::VrfVerificationFailed))?;
         Ok(Self::vrf_output(proof))
     }
 }
@@ -94,18 +95,12 @@ impl Default for ECDSAVRF {
 }
 
 /// Legacy alias for backward compatibility
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct VerifiableRandomFunction(ECDSAVRF);
 
 impl VerifiableRandomFunction {
     pub fn new() -> Result<Self> {
         ECDSAVRF::new().map(Self)
-    }
-}
-
-impl Default for VerifiableRandomFunction {
-    fn default() -> Self {
-        Self(ECDSAVRF::default())
     }
 }
 

@@ -38,7 +38,7 @@ async fn connect_nodes(nodes: &mut [ChaincraftNode]) {
         let next_node = (i + 1) % num_nodes;
         let next_host = nodes[next_node].host();
         let next_port = nodes[next_node].port();
-        let connect_addr = format!("{}:{}", next_host, next_port);
+        let connect_addr = format!("{next_host}:{next_port}");
 
         nodes[i].connect_to_peer(&connect_addr).await.unwrap();
     }
@@ -110,7 +110,7 @@ async fn test_shared_object_propagation() {
         }
     }
 
-    println!("Expected total after all propagation: {}", expected_number);
+    println!("Expected total after all propagation: {expected_number}");
 
     // Clean up
     for mut node in nodes {

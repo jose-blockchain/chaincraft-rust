@@ -274,7 +274,7 @@ async fn test_byzantine_fault_tolerance() {
 
     // Create 4 validators (can tolerate 1 Byzantine)
     for i in 1..=4 {
-        tendermint.add_validator(format!("validator{}", i), format!("pubkey{}", i), 100);
+        tendermint.add_validator(format!("validator{i}"), format!("pubkey{i}"), 100);
     }
 
     // Simulate conflicting votes from Byzantine validator

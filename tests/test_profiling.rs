@@ -32,7 +32,7 @@ async fn test_message_creation_performance() {
     let duration = start.elapsed();
 
     // Should complete within reasonable time (adjust threshold as needed)
-    assert!(duration.as_secs() < 10, "Message creation took too long: {:?}", duration);
+    assert!(duration.as_secs() < 10, "Message creation took too long: {duration:?}");
 
     node.close().await.unwrap();
 }
@@ -48,8 +48,7 @@ async fn test_node_startup_performance() {
     // Node should start quickly
     assert!(
         startup_duration.as_secs() < 5,
-        "Node startup took too long: {:?}",
-        startup_duration
+        "Node startup took too long: {startup_duration:?}"
     );
 
     node.close().await.unwrap();
@@ -83,8 +82,7 @@ async fn test_concurrent_message_handling() {
     // Concurrent processing should be efficient
     assert!(
         duration.as_secs() < 5,
-        "Concurrent message handling took too long: {:?}",
-        duration
+        "Concurrent message handling took too long: {duration:?}"
     );
 
     node.close().await.unwrap();
@@ -152,8 +150,7 @@ async fn test_network_latency_simulation() {
     // Network simulation should complete quickly
     assert!(
         total_latency.as_millis() < 1000,
-        "Network latency simulation too slow: {:?}",
-        total_latency
+        "Network latency simulation too slow: {total_latency:?}"
     );
 
     node1.close().await.unwrap();

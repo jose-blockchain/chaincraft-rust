@@ -51,7 +51,7 @@ async fn connect_nodes(nodes: &mut [ChaincraftNode]) -> Result<()> {
 
 /// Print network status for all nodes.
 async fn print_network_status(nodes: &[ChaincraftNode], label: &str) {
-    println!("{}", label);
+    println!("{label}");
     for (i, node) in nodes.iter().enumerate() {
         let peers = node.peers();
         let obj_count = node.shared_object_count().await;
@@ -90,7 +90,7 @@ async fn main() -> Result<()> {
         nodes[node_idx]
             .create_shared_message_with_data(data)
             .await?;
-        println!("Node {} created shared object (value={})", node_idx, value);
+        println!("Node {node_idx} created shared object (value={value})");
         sleep(Duration::from_millis(500)).await;
     }
 

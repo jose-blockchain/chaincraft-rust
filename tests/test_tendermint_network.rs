@@ -1,11 +1,8 @@
 //! Multi-node Tendermint consensus tests over real UDP/gossip layer
 
 use chaincraft_rust::{
-    examples::tendermint::TendermintObject,
-    network::PeerId,
-    shared_object::ApplicationObject,
-    storage::MemoryStorage,
-    ChaincraftNode, clear_local_registry,
+    clear_local_registry, examples::tendermint::TendermintObject, network::PeerId,
+    shared_object::ApplicationObject, storage::MemoryStorage, ChaincraftNode,
 };
 use serde_json::json;
 use std::sync::Arc;

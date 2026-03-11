@@ -1,11 +1,8 @@
 //! Multi-node Randomness Beacon tests over real UDP/gossip layer
 
 use chaincraft_rust::{
-    examples::randomness_beacon::RandomnessBeaconObject,
-    network::PeerId,
-    shared_object::ApplicationObject,
-    storage::MemoryStorage,
-    ChaincraftNode, clear_local_registry,
+    clear_local_registry, examples::randomness_beacon::RandomnessBeaconObject, network::PeerId,
+    shared_object::ApplicationObject, storage::MemoryStorage, ChaincraftNode,
 };
 use serde_json::json;
 use std::sync::Arc;

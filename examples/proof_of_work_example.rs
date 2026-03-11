@@ -29,7 +29,7 @@ async fn main() -> Result<()> {
 
     println!("  Nonce: {}", proof.nonce);
     println!("  Hash:  {}...", &proof.hash[..proof.hash.len().min(16)]);
-    println!("  Time:  {:?}\n", elapsed);
+    println!("  Time:  {elapsed:?}\n");
 
     let verified = pow.verify_proof(challenge, proof).await?;
     println!("Verification: {}", if verified { "PASSED" } else { "FAILED" });

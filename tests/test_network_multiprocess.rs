@@ -31,7 +31,7 @@ fn test_multiprocess_message_propagation() {
             "--port",
             &port2.to_string(),
             "--peer",
-            &format!("127.0.0.1:{}", port1),
+            &format!("127.0.0.1:{port1}"),
             "--output",
             out2.to_str().unwrap(),
         ])
@@ -43,7 +43,7 @@ fn test_multiprocess_message_propagation() {
             "--port",
             &port3.to_string(),
             "--peer",
-            &format!("127.0.0.1:{}", port1),
+            &format!("127.0.0.1:{port1}"),
             "--output",
             out3.to_str().unwrap(),
         ])
@@ -59,9 +59,9 @@ fn test_multiprocess_message_propagation() {
             "--port",
             &port1.to_string(),
             "--peer",
-            &format!("127.0.0.1:{}", port2),
+            &format!("127.0.0.1:{port2}"),
             "--peer",
-            &format!("127.0.0.1:{}", port3),
+            &format!("127.0.0.1:{port3}"),
             "--message",
             "hello_multiprocess",
             "--output",
@@ -92,8 +92,7 @@ fn test_multiprocess_message_propagation() {
 
     // At minimum, node1 should have stored its own message, and the others
     // should have received and stored it via UDP propagation.
-    assert!(db1 >= 1, "expected node1 to have at least 1 message, got {}", db1);
-    assert!(db2 >= 1, "expected node2 to have at least 1 message, got {}", db2);
-    assert!(db3 >= 1, "expected node3 to have at least 1 message, got {}", db3);
+    assert!(db1 >= 1, "expected node1 to have at least 1 message, got {db1}");
+    assert!(db2 >= 1, "expected node2 to have at least 1 message, got {db2}");
+    assert!(db3 >= 1, "expected node3 to have at least 1 message, got {db3}");
 }
-

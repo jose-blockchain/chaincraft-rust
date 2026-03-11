@@ -536,7 +536,7 @@ pub mod helpers {
         proposer: String,
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
-        let signature_data = format!("proposal:{}:{}:{}", height, round, block_hash);
+        let signature_data = format!("proposal:{height}:{round}:{block_hash}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let proposal = TendermintMessageType::Proposal {
@@ -559,7 +559,7 @@ pub mod helpers {
         validator: String,
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
-        let signature_data = format!("prevote:{}:{}:{:?}", height, round, block_hash);
+        let signature_data = format!("prevote:{height}:{round}:{block_hash:?}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let prevote = TendermintMessageType::Prevote {
@@ -581,7 +581,7 @@ pub mod helpers {
         validator: String,
         signer: &ECDSASigner,
     ) -> Result<serde_json::Value> {
-        let signature_data = format!("precommit:{}:{}:{:?}", height, round, block_hash);
+        let signature_data = format!("precommit:{height}:{round}:{block_hash:?}");
         let signature = signer.sign(signature_data.as_bytes())?;
 
         let precommit = TendermintMessageType::Precommit {

@@ -209,12 +209,7 @@ async fn test_indexing_across_nodes() {
     // All nodes should have at least 2 messages stored
     for (i, node) in nodes.iter().enumerate() {
         let count = node.db_size();
-        assert!(
-            count >= 2,
-            "expected node {} to see at least 2 messages, got {}",
-            i,
-            count
-        );
+        assert!(count >= 2, "expected node {i} to see at least 2 messages, got {count}");
     }
 
     // Clean up

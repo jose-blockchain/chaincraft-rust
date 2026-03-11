@@ -190,7 +190,7 @@ impl fmt::Display for MessageType {
             MessageType::RequestMessagesSince => write!(f, "REQUEST_MESSAGES_SINCE"),
             MessageType::DigestResponse => write!(f, "DIGEST_RESPONSE"),
             MessageType::MessagesResponse => write!(f, "MESSAGES_RESPONSE"),
-            MessageType::Custom(name) => write!(f, "{}", name),
+            MessageType::Custom(name) => write!(f, "{name}"),
         }
     }
 }

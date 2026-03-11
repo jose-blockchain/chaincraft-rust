@@ -63,7 +63,7 @@ async fn wait_for_propagation(
 
     while start.elapsed() < timeout {
         let counts: Vec<usize> = nodes.iter().map(|node| node.db_size()).collect();
-        println!("Current message counts: {:?}", counts);
+        println!("Current message counts: {counts:?}");
 
         if counts.iter().all(|&count| count >= expected_count) {
             return true;
@@ -190,7 +190,7 @@ async fn test_multiple_object_creation() -> Result<()> {
     // Create multiple messages
     let node_count = nodes.len();
     for i in 0..3 {
-        let message = format!("Object {}", i);
+        let message = format!("Object {i}");
         nodes[i % node_count].create_shared_message(message).await?;
         sleep(Duration::from_secs(1)).await;
     }

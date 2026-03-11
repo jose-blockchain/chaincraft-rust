@@ -1,8 +1,4 @@
-use chaincraft_rust::{
-    network::PeerId,
-    storage::MemoryStorage,
-    ChaincraftNode,
-};
+use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use serde_json::json;
 use std::{env, fs, path::PathBuf, sync::Arc, time::Duration};
 
@@ -28,22 +24,22 @@ async fn main() {
             "--port" if i + 1 < args.len() => {
                 port = args[i + 1].parse().expect("invalid port");
                 i += 2;
-            }
+            },
             "--peer" if i + 1 < args.len() => {
                 peers.push(args[i + 1].clone());
                 i += 2;
-            }
+            },
             "--message" if i + 1 < args.len() => {
                 message = Some(args[i + 1].clone());
                 i += 2;
-            }
+            },
             "--output" if i + 1 < args.len() => {
                 output = Some(PathBuf::from(&args[i + 1]));
                 i += 2;
-            }
+            },
             _ => {
                 i += 1;
-            }
+            },
         }
     }
 

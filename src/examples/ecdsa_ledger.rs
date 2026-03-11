@@ -71,20 +71,28 @@ impl ECDSALedgerObject {
     }
 
     fn tx_hash(from: &str, to: &str, amount: u64, nonce: u64) -> String {
-        format!("{}:{}:{}:{}", from, to, amount, nonce)
+        format!("{from}:{to}:{amount}:{nonce}")
     }
 
-    fn validate_signature(&self, msg_data: &Value, signature: &str, public_key_pem: &str) -> Result<bool> {
+    fn validate_signature(
+        &self,
+        msg_data: &Value,
+        signature: &str,
+        public_key_pem: &str,
+    ) -> Result<bool> {
         let mut for_verify = msg_data.clone();
         if let Some(obj) = for_verify.as_object_mut() {
             obj.remove("signature");
         }
-        let payload = serde_json::to_string(&for_verify)
-            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))?;
-        let sig_bytes = hex::decode(signature).map_err(|_| ChaincraftError::validation("Invalid signature hex"))?;
+        let payload = serde_json::to_string(&for_verify).map_err(|e| {
+            ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
+        })?;
+        let sig_bytes = hex::decode(signature)
+            .map_err(|_| ChaincraftError::validation("Invalid signature hex"))?;
         let ecdsa_sig = ECDSASignature::from_bytes(&sig_bytes)
             .map_err(|_| ChaincraftError::validation("Invalid signature format"))?;
-        self.verifier.verify(payload.as_bytes(), &ecdsa_sig, public_key_pem)
+        self.verifier
+            .verify(payload.as_bytes(), &ecdsa_sig, public_key_pem)
     }
 }
 
@@ -109,7 +117,14 @@ impl ApplicationObject for ECDSALedgerObject {
             .map_err(|_| ChaincraftError::validation("Invalid ledger message format"))?;
 
         match msg {
-            LedgerMessageType::Transfer { from, to, amount, nonce, public_key_pem, signature } => {
+            LedgerMessageType::Transfer {
+                from,
+                to,
+                amount,
+                nonce,
+                public_key_pem,
+                signature,
+            } => {
                 if signature.is_empty() {
                     return Ok(false);
                 }
@@ -119,7 +134,7 @@ impl ApplicationObject for ECDSALedgerObject {
                 }
                 let msg_data = serde_json::to_value(&message.data).unwrap_or_default();
                 self.validate_signature(&msg_data, &signature, &public_key_pem)
-            }
+            },
         }
     }
 
@@ -169,7 +184,7 @@ impl ApplicationObject for ECDSALedgerObject {
                 *self.balances.entry(to).or_insert(0) += amount;
                 self.nonces.insert(from, nonce + 1);
                 Ok(())
-            }
+            },
         }
     }
 
@@ -202,7 +217,11 @@ impl ApplicationObject for ECDSALedgerObject {
     }
 
     async fn get_state(&self) -> Result<Value> {
-        let balances: HashMap<&str, u64> = self.balances.iter().map(|(k, v)| (k.as_str(), *v)).collect();
+        let balances: HashMap<&str, u64> = self
+            .balances
+            .iter()
+            .map(|(k, v)| (k.as_str(), *v))
+            .collect();
         Ok(serde_json::json!({
             "entry_count": self.entries.len(),
             "balances": balances
@@ -258,8 +277,9 @@ pub mod helpers {
         if let Some(obj) = for_sign.as_object_mut() {
             obj.remove("signature");
         }
-        let to_sign = serde_json::to_vec(&for_sign)
-            .map_err(|e| ChaincraftError::Serialization(crate::error::SerializationError::Json(e)))?;
+        let to_sign = serde_json::to_vec(&for_sign).map_err(|e| {
+            ChaincraftError::Serialization(crate::error::SerializationError::Json(e))
+        })?;
         let sig = signer.sign(&to_sign)?;
         let sig_hex = hex::encode(sig.to_bytes());
         let mut out = payload;

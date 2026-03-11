@@ -72,11 +72,6 @@ impl ChaincraftNode {
             .expect("Failed to create node")
     }
 
-    /// Create a new Chaincraft node with default settings
-    pub fn default() -> Self {
-        Self::new(PeerId::new(), Arc::new(MemoryStorage::new()))
-    }
-
     /// Create a new Chaincraft node with default settings (alias for compatibility with examples)
     pub fn new_default() -> Self {
         Self::default()
@@ -169,7 +164,11 @@ impl ChaincraftNode {
     }
 
     /// Ban a peer address for a duration. Persisted to storage.
-    pub async fn ban_peer(&self, addr: SocketAddr, duration: Option<std::time::Duration>) -> Result<()> {
+    pub async fn ban_peer(
+        &self,
+        addr: SocketAddr,
+        duration: Option<std::time::Duration>,
+    ) -> Result<()> {
         {
             let mut banned = self.banned_peers.write().await;
             banned.insert(addr);
@@ -533,24 +532,34 @@ impl ChaincraftNode {
     }
 }
 
+impl Default for ChaincraftNode {
+    fn default() -> Self {
+        Self::new(PeerId::new(), Arc::new(MemoryStorage::new()))
+    }
+}
+
 /// Helper: start UDP networking for this node.
 impl ChaincraftNode {
     async fn start_networking(&mut self) -> Result<()> {
         // Bind UDP socket to configured host/port. If port is 0, the OS will
         // choose an ephemeral port for us.
-        let bind_addr: SocketAddr = format!("{}:{}", self.host(), self.port())
-            .parse()
-            .map_err(|_| {
-                ChaincraftError::Config(format!(
-                    "Invalid bind address {}:{}",
-                    self.host(),
-                    self.port()
-                ))
-            })?;
+        let bind_addr: SocketAddr =
+            format!("{}:{}", self.host(), self.port())
+                .parse()
+                .map_err(|_| {
+                    ChaincraftError::Config(format!(
+                        "Invalid bind address {}:{}",
+                        self.host(),
+                        self.port()
+                    ))
+                })?;
 
-        let socket = UdpSocket::bind(bind_addr)
-            .await
-            .map_err(|e| ChaincraftError::Network(NetworkError::BindFailed { addr: bind_addr, source: e }))?;
+        let socket = UdpSocket::bind(bind_addr).await.map_err(|e| {
+            ChaincraftError::Network(NetworkError::BindFailed {
+                addr: bind_addr,
+                source: e,
+            })
+        })?;
 
         // If we bound to port 0, update the config with the actual port chosen
         let register_addr = if self.config.port == 0 {
@@ -604,7 +613,7 @@ impl ChaincraftNode {
                             }
                             tracing::warn!("UDP recv_from error: {:?}", e);
                             continue;
-                        }
+                        },
                     };
 
                     let data = &buf[..len];
@@ -672,7 +681,9 @@ impl ChaincraftNode {
                 for hash in hashes {
                     // Fetch stored JSON and rebroadcast it
                     if let Ok(Some(bytes)) = storage.get(&hash).await {
-                        if let Err(e) = broadcast_bytes(&socket, &peers, &banned_peers, &bytes).await {
+                        if let Err(e) =
+                            broadcast_bytes(&socket, &peers, &banned_peers, &bytes).await
+                        {
                             tracing::warn!("gossip broadcast failed for {}: {:?}", hash, e);
                         }
                     }
@@ -710,10 +721,7 @@ async fn broadcast_bytes(
     let (peers_snapshot, banned_set): (Vec<SocketAddr>, HashSet<SocketAddr>) = {
         let p = peers.read().await;
         let b = banned_peers.read().await;
-        (
-            p.values().map(|x| x.address).collect(),
-            b.iter().copied().collect(),
-        )
+        (p.values().map(|x| x.address).collect(), b.iter().copied().collect())
     };
 
     for addr in peers_snapshot {
@@ -766,6 +774,7 @@ fn snapshot_local_nodes() -> Option<Vec<(PeerId, SocketAddr)>> {
 }
 
 /// Handle digest-sync control messages (REQUEST_DIGEST, REQUEST_MESSAGES_SINCE, etc.)
+#[allow(clippy::too_many_arguments)]
 async fn handle_digest_sync_control(
     data: &[u8],
     addr: SocketAddr,
@@ -802,7 +811,7 @@ async fn handle_digest_sync_control(
             let bytes = serde_json::to_vec(&resp).unwrap_or_default();
             let _ = socket.send_to(&bytes, addr).await;
             return Ok(true);
-        }
+        },
         Some("REQUEST_MESSAGES_SINCE") => {
             let since = value.get("digest").and_then(|d| d.as_str()).unwrap_or("");
             let messages = {
@@ -812,7 +821,10 @@ async fn handle_digest_sync_control(
                 for id in ids {
                     if let Some(obj) = registry.get(&id) {
                         if obj.is_merkleized() {
-                            msgs = obj.get_messages_since_digest(since).await.unwrap_or_default();
+                            msgs = obj
+                                .get_messages_since_digest(since)
+                                .await
+                                .unwrap_or_default();
                             break;
                         }
                     }
@@ -827,7 +839,7 @@ async fn handle_digest_sync_control(
             let bytes = serde_json::to_vec(&resp).unwrap_or_default();
             let _ = socket.send_to(&bytes, addr).await;
             return Ok(true);
-        }
+        },
         Some("DIGEST_RESPONSE") => {
             let remote_digest = value.get("digest").and_then(|d| d.as_str()).unwrap_or("");
             let our_digest = {
@@ -850,7 +862,7 @@ async fn handle_digest_sync_control(
                 let _ = socket.send_to(&bytes, addr).await;
             }
             return Ok(true);
-        }
+        },
         Some("MESSAGES_RESPONSE") => {
             let messages: Vec<SharedMessage> = value
                 .get("messages")
@@ -879,13 +891,14 @@ async fn handle_digest_sync_control(
                 let _ = broadcast_bytes(socket, peers, banned_peers, &bytes).await;
             }
             return Ok(true);
-        }
-        _ => {}
+        },
+        _ => {},
     }
     Ok(false)
 }
 
 /// Handle an incoming UDP datagram.
+#[allow(clippy::too_many_arguments)]
 async fn handle_incoming_datagram(
     data: &[u8],
     addr: SocketAddr,
@@ -906,8 +919,17 @@ async fn handle_incoming_datagram(
 
     // Try digest-sync control messages first
     if let Some(kh) = known_hashes {
-        if let Ok(true) =
-            handle_digest_sync_control(data, addr, socket, storage, app_objects, peers, banned_peers, kh).await
+        if let Ok(true) = handle_digest_sync_control(
+            data,
+            addr,
+            socket,
+            storage,
+            app_objects,
+            peers,
+            banned_peers,
+            kh,
+        )
+        .await
         {
             // Ensure peer is recorded
             {

@@ -157,14 +157,14 @@ impl ECDSASigner {
                 // Convert to PEM-like format
                 let bytes = pk.to_bytes();
                 let b64 = general_purpose::STANDARD.encode(bytes);
-                Ok(format!("-----BEGIN PUBLIC KEY-----\n{}\n-----END PUBLIC KEY-----", b64))
+                Ok(format!("-----BEGIN PUBLIC KEY-----\n{b64}\n-----END PUBLIC KEY-----"))
             },
             PublicKey::Secp256k1(pk) => {
                 // For secp256k1, use the compressed format
                 use k256::elliptic_curve::sec1::ToEncodedPoint;
                 let point = pk.to_encoded_point(true);
                 let b64 = general_purpose::STANDARD.encode(point.as_bytes());
-                Ok(format!("-----BEGIN PUBLIC KEY-----\n{}\n-----END PUBLIC KEY-----", b64))
+                Ok(format!("-----BEGIN PUBLIC KEY-----\n{b64}\n-----END PUBLIC KEY-----"))
             },
         }
     }

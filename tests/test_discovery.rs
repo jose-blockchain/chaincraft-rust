@@ -1,4 +1,6 @@
-use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode, clear_local_registry};
+use chaincraft_rust::{
+    clear_local_registry, network::PeerId, storage::MemoryStorage, ChaincraftNode,
+};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 
@@ -33,7 +35,7 @@ async fn wait_for_propagation(
             }
         }
 
-        println!("Current peer counts: {:?}", counts);
+        println!("Current peer counts: {counts:?}");
 
         if all_match {
             return true;
@@ -60,8 +62,8 @@ async fn test_single_node_no_peers() {
     sleep(Duration::from_secs(1)).await;
 
     let peers = node.get_peers().await;
-    println!("Peers: {:?}", peers);
-    assert_eq!(peers.len(), 0, "Expected 0 peers but found {:?}", peers);
+    println!("Peers: {peers:?}");
+    assert_eq!(peers.len(), 0, "Expected 0 peers but found {peers:?}");
 
     node.close().await.unwrap();
 }
@@ -169,7 +171,7 @@ async fn test_four_nodes_discovery() {
     // Check that each node has connections
     for (i, node) in nodes.iter().enumerate() {
         let peer_count = node.get_peers().await.len();
-        println!("Node {} has {} peers", i, peer_count);
+        println!("Node {i} has {peer_count} peers");
         assert!(peer_count >= 1); // At least one connection
     }
 
@@ -217,7 +219,7 @@ async fn test_max_peers_limit() {
     }
 
     println!("Node1 has {} peers (max: {})", _node1_peers.len(), max_peers);
-    println!("Total connections in network: {}", total_connections);
+    println!("Total connections in network: {total_connections}");
 
     // In our simplified implementation, connections are directional
     // We should see at least some connections somewhere in the network
@@ -286,11 +288,11 @@ async fn test_network_scaling() {
     for (i, node) in nodes.iter().enumerate() {
         let peer_count = node.get_peers().await.len();
         total_connections += peer_count;
-        println!("Node {} has {} peers", i, peer_count);
+        println!("Node {i} has {peer_count} peers");
     }
 
     let average_connections = total_connections as f64 / num_nodes as f64;
-    println!("Average connections per node: {:.2}", average_connections);
+    println!("Average connections per node: {average_connections:.2}");
 
     // Each node should have at least some connections
     assert!(average_connections > 0.0);

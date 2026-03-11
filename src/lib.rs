@@ -25,7 +25,7 @@ pub mod utils;
 // Re-exports
 pub use error::{ChaincraftError, Result};
 pub use network::{PeerId, PeerInfo};
-pub use node::{ChaincraftNode, clear_local_registry};
+pub use node::{clear_local_registry, ChaincraftNode};
 pub use shared::{SharedMessage, SharedObject, SharedObjectId, SharedObjectRegistry};
 
 // Application object re-exports

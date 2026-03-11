@@ -24,11 +24,11 @@ impl VerifiableDelayFunction {
     pub fn solve(&self, challenge: &[u8], iterations: u64) -> Result<Vec<u8>> {
         #[cfg(feature = "vdf-crypto")]
         {
-            use vdf::{PietrzakVDFParams, VDF, VDFParams};
+            use vdf::{PietrzakVDFParams, VDFParams, VDF};
             let vdf = PietrzakVDFParams(self.num_bits).new();
             vdf.solve(challenge, iterations).map_err(|e| {
                 ChaincraftError::Crypto(crate::error::CryptoError::VdfError {
-                    reason: format!("{:?}", e),
+                    reason: format!("{e:?}"),
                 })
             })
         }
@@ -45,13 +45,13 @@ impl VerifiableDelayFunction {
     pub fn verify(&self, challenge: &[u8], iterations: u64, solution: &[u8]) -> Result<bool> {
         #[cfg(feature = "vdf-crypto")]
         {
-            use vdf::{PietrzakVDFParams, VDF, VDFParams};
+            use vdf::{PietrzakVDFParams, VDFParams, VDF};
             let vdf = PietrzakVDFParams(self.num_bits).new();
             vdf.verify(challenge, iterations, solution)
                 .map(|_| true)
                 .map_err(|e| {
                     ChaincraftError::Crypto(crate::error::CryptoError::VdfError {
-                        reason: format!("{:?}", e),
+                        reason: format!("{e:?}"),
                     })
                 })
         }
