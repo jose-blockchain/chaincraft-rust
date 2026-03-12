@@ -632,7 +632,7 @@ impl ApplicationObject for MessageChain {
 /// Registry for managing application objects
 #[derive(Debug)]
 pub struct ApplicationObjectRegistry {
-    objects: HashMap<SharedObjectId, Box<dyn ApplicationObject>>,
+    pub objects: HashMap<SharedObjectId, Box<dyn ApplicationObject>>,
     objects_by_type: HashMap<String, Vec<SharedObjectId>>,
 }
 
