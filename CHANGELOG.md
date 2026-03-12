@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-03-12
+
+### Added
+- Slush protocol example from Avalanche paper (Section 2.2) as ApplicationObject
+- `examples/slush_example.rs`: 10-node metastable consensus demo over real UDP
+- `tests/test_slush.rs`: 13 tests (unit + integration)
+
+### Changed
+- Package and crate renamed from `chaincraft-rust` to `chaincraft` (crates.io/docs.rs)
+- GitHub repository remains `chaincraft-rust`
+- Expose `ApplicationObjectRegistry.objects` for protocol examples
+
 ## [0.2.1] - 2025-03-10
 
 ### Fixed
@@ -61,7 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configurable resource limits
 - Optimized cryptographic operations
 
-[Unreleased]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/jose-blockchain/chaincraft-rust/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/jose-blockchain/chaincraft-rust/releases/tag/v0.1.0 

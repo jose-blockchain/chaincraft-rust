@@ -1,6 +1,6 @@
 //! Tests for Slush protocol (Avalanche paper Section 2.2).
 
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry,
     examples::slush::{create_vote_message, Color, SlushObject},
     network::PeerId,

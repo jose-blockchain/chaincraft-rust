@@ -10,7 +10,7 @@
 //!
 //! Run with: `cargo run --example shared_objects_example`
 
-use chaincraft_rust::{
+use chaincraft::{
     error::Result,
     network::PeerId,
     shared_object::{ApplicationObject, SimpleSharedNumber},

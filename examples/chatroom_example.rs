@@ -10,7 +10,7 @@
 //!
 //! Run with: `cargo run --example chatroom_example`
 
-use chaincraft_rust::{
+use chaincraft::{
     crypto::ecdsa::ECDSASigner,
     error::Result,
     examples::chatroom::{helpers, ChatroomObject},

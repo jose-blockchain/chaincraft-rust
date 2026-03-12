@@ -10,7 +10,7 @@
 //!
 //! Run with: `cargo run --example randomness_beacon_example`
 
-use chaincraft_rust::{
+use chaincraft::{
     error::Result,
     examples::randomness_beacon::{helpers, RandomnessBeaconObject},
     network::PeerId,
@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
         &my_address[..my_address.len().min(40)]
     );
 
-    let reg_signer = chaincraft_rust::crypto::ecdsa::ECDSASigner::new()?;
+    let reg_signer = chaincraft::crypto::ecdsa::ECDSASigner::new()?;
     let reg_msg = helpers::create_validator_registration(
         my_address.clone(),
         reg_signer.get_public_key_pem()?,

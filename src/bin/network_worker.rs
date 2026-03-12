@@ -1,4 +1,4 @@
-use chaincraft_rust::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
+use chaincraft::{network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use serde_json::json;
 use std::{env, fs, path::PathBuf, sync::Arc, time::Duration};
 

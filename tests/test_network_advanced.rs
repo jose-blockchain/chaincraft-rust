@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry,
     error::{ChaincraftError, SerializationError},
     network::PeerId,

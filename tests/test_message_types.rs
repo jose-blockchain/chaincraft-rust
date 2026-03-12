@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chaincraft_rust::{
+use chaincraft::{
     network::PeerId,
     shared::{MessageType, SharedMessage},
     storage::MemoryStorage,

@@ -1,8 +1,6 @@
 //! Tests for persisted peers and banned peers (PEERS / BANNED_PEERS in DB)
 
-use chaincraft_rust::{
-    clear_local_registry, network::PeerId, storage::MemoryStorage, ChaincraftNode,
-};
+use chaincraft::{clear_local_registry, network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use std::net::SocketAddr;
 use std::sync::Arc;
 

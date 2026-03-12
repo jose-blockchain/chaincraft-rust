@@ -3,7 +3,7 @@
 //! Demonstrates cryptographic primitives end-to-end: keygen, sign transfers,
 //! verify, propagate over network.
 
-use chaincraft_rust::{
+use chaincraft::{
     crypto::ecdsa::ECDSASigner,
     error::Result,
     examples::ecdsa_ledger::{helpers, ECDSALedgerObject},

@@ -1,6 +1,6 @@
 //! Multi-node Tendermint consensus tests over real UDP/gossip layer
 
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry, examples::tendermint::TendermintObject, network::PeerId,
     shared_object::ApplicationObject, storage::MemoryStorage, ChaincraftNode,
 };

@@ -1,4 +1,4 @@
-use chaincraft_rust::{
+use chaincraft::{
     crypto::ecdsa::ECDSASigner,
     examples::tendermint::{
         helpers, ConsensusState, TendermintMessageType, TendermintObject, ValidatorInfo,
@@ -287,7 +287,7 @@ async fn test_byzantine_fault_tolerance() {
         .or_insert_with(HashMap::new)
         .insert(
             "validator1".to_string(),
-            chaincraft_rust::examples::tendermint::Vote {
+            chaincraft::examples::tendermint::Vote {
                 validator: "validator1".to_string(),
                 block_hash: Some("block_hash_1".to_string()),
                 signature: "sig1".to_string(),

@@ -6,7 +6,7 @@
 //!
 //! Run with: `cargo run --example slush_example`
 
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry,
     error::Result,
     examples::slush::{create_vote_message, Color, SlushObject},

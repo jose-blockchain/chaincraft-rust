@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chaincraft_rust::{
+use chaincraft::{
     crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
     network::PeerId,
     shared::{MessageType, SharedMessage},

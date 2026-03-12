@@ -1,6 +1,6 @@
 [package]
-name = "chaincraft-rust"
-version = "0.2.1"
+name = "chaincraft"
+version = "0.2.2"
 edition = "2021"
 rust-version = "1.82"
 authors = ["Chaincraft Contributors"]
@@ -9,7 +9,7 @@ description = "A high-performance Rust-based platform for blockchain education a
 readme = "README.md"
 homepage = "https://github.com/jose-blockchain/chaincraft-rust"
 repository = "https://github.com/jose-blockchain/chaincraft-rust"
-documentation = "https://docs.rs/chaincraft-rust"
+documentation = "https://docs.rs/chaincraft"
 keywords = ["blockchain", "education", "prototyping", "distributed", "consensus"]
 categories = ["network-programming", "cryptography", "science"]
 include = [
@@ -27,7 +27,7 @@ include = [
 # ring = { git = "https://github.com/briansmith/ring", tag = "v0.16.20" }
 
 [lib]
-name = "chaincraft_rust"
+name = "chaincraft"
 path = "src/lib.rs"
 
 [[bin]]

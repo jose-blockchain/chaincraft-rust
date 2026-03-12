@@ -1,7 +1,7 @@
 //! This example demonstrates how to create and run a basic ChainCraft node
 //! with default configuration.
 
-use chaincraft_rust::{error::Result, ChaincraftNode};
+use chaincraft::{error::Result, ChaincraftNode};
 use tokio::time::{sleep, Duration};
 
 #[tokio::main]

@@ -2,7 +2,7 @@
 //!
 //! Matches Python chaincraft-cli UX: start node, choose port, connect to seed peer, debug/memory.
 
-use chaincraft_rust::{ChaincraftNode, Result};
+use chaincraft::{ChaincraftNode, Result};
 use clap::{Parser, Subcommand};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tracing::{info, Level};
@@ -127,7 +127,7 @@ async fn main() -> Result<()> {
             node.stop().await?;
         },
         Some(Commands::Keygen) => {
-            use chaincraft_rust::crypto::{utils, KeyType};
+            use chaincraft::crypto::{utils, KeyType};
 
             let (private_key, public_key) = utils::generate_keypair(KeyType::Secp256k1)?;
 
@@ -135,12 +135,12 @@ async fn main() -> Result<()> {
             println!("Private key: {}", private_key.to_hex());
             println!("Public key: {}", public_key.to_hex());
 
-            use chaincraft_rust::crypto::address::Address;
+            use chaincraft::crypto::address::Address;
             let address = Address::from_public_key(&public_key);
             println!("Address: {address}");
         },
         Some(Commands::Version) => {
-            println!("ChainCraft Rust v{}", chaincraft_rust::VERSION);
+            println!("ChainCraft Rust v{}", chaincraft::VERSION);
         },
     }
 

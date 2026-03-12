@@ -4,13 +4,13 @@
 
 **Chaincraft: A high-performance library for blockchain prototyping and production-ready decentralized protocols**
 
-[![Crates.io](https://img.shields.io/crates/v/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
-[![Documentation](https://docs.rs/chaincraft-rust/badge.svg)](https://docs.rs/chaincraft-rust)
+[![Crates.io](https://img.shields.io/crates/v/chaincraft.svg)](https://crates.io/crates/chaincraft)
+[![Documentation](https://docs.rs/chaincraft/badge.svg)](https://docs.rs/chaincraft)
 [![CI](https://github.com/jose-blockchain/chaincraft-rust/actions/workflows/ci.yml/badge.svg)](https://github.com/jose-blockchain/chaincraft-rust/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [![Rust](https://img.shields.io/badge/rust-1.82%2B-orange.svg)](https://www.rust-lang.org/)
-[![Crates.io Downloads](https://img.shields.io/crates/d/chaincraft-rust.svg)](https://crates.io/crates/chaincraft-rust)
+[![Crates.io Downloads](https://img.shields.io/crates/d/chaincraft.svg)](https://crates.io/crates/chaincraft)
 
 </div>
 
@@ -35,7 +35,7 @@ Chaincraft: A high-performance library for blockchain prototyping and production
 #### From Crates.io
 
 ```bash
-cargo install chaincraft-rust
+cargo install chaincraft
 ```
 
 #### From Source
@@ -72,13 +72,13 @@ Add Chaincraft Rust to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-chaincraft-rust = "0.2.1"
+chaincraft = "0.2.2"
 ```
 
 ### Basic Example
 
 ```rust
-use chaincraft_rust::{ChaincraftNode, Result};
+use chaincraft::{ChaincraftNode, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -101,7 +101,7 @@ async fn main() -> Result<()> {
 ### Advanced Configuration
 
 ```rust
-use chaincraft_rust::{ChaincraftNode, Result};
+use chaincraft::{ChaincraftNode, Result};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -165,7 +165,7 @@ cargo run --example shared_objects_example
 
 ### Python vs Rust Feature Mapping
 
-| Python (chaincraft)   | Rust (chaincraft-rust)  |
+| Python (chaincraft)   | Rust (chaincraft)  |
 |-----------------------|-------------------------|
 | `node.py`             | `src/node.rs`           |
 | `SharedMessage`       | `shared::SharedMessage` |
@@ -195,7 +195,7 @@ Enable features in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-chaincraft-rust = { version = "0.2.1", features = ["persistent", "indexing"] }
+chaincraft = { version = "0.2.2", features = ["persistent", "indexing"] }
 ```
 
 ## Development
@@ -241,7 +241,7 @@ cargo tarpaulin --out Html
 
 ## API Documentation
 
-Full API documentation is available on [docs.rs](https://docs.rs/chaincraft-rust).
+Full API documentation is available on [docs.rs](https://docs.rs/chaincraft).
 
 To build documentation locally:
 
@@ -322,4 +322,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-For more information, visit our [documentation](https://docs.rs/chaincraft-rust) or [repository](https://github.com/jose-blockchain/chaincraft-rust). 
+For more information, visit our [documentation](https://docs.rs/chaincraft) or [repository](https://github.com/jose-blockchain/chaincraft-rust). 

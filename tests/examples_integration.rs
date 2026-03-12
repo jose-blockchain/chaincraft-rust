@@ -2,7 +2,7 @@
 //!
 //! Verifies that example logic compiles, runs, and produces expected results.
 
-use chaincraft_rust::{
+use chaincraft::{
     crypto::{ecdsa::ECDSASigner, pow::PoWChallenge, KeylessCryptoPrimitive, ProofOfWork},
     examples::chatroom::{helpers, ChatroomObject},
     network::PeerId,
@@ -108,7 +108,7 @@ async fn test_shared_objects_example_network() {
 #[tokio::test]
 async fn test_randomness_beacon_example_starts() {
     let beacon =
-        chaincraft_rust::examples::randomness_beacon::RandomnessBeaconObject::new(60, 2).unwrap();
+        chaincraft::examples::randomness_beacon::RandomnessBeaconObject::new(60, 2).unwrap();
     let id = PeerId::new();
     let storage = Arc::new(MemoryStorage::new());
     let mut node = ChaincraftNode::new(id, storage);
@@ -127,12 +127,12 @@ async fn test_randomness_beacon_example_starts() {
 
 #[tokio::test]
 async fn test_ecdsa_ledger_example_signed_transfers() {
-    use chaincraft_rust::examples::ecdsa_ledger::{helpers, ECDSALedgerObject};
+    use chaincraft::examples::ecdsa_ledger::{helpers, ECDSALedgerObject};
 
-    chaincraft_rust::clear_local_registry();
-    let id = chaincraft_rust::network::PeerId::new();
-    let storage = Arc::new(chaincraft_rust::storage::MemoryStorage::new());
-    let mut node = chaincraft_rust::ChaincraftNode::new(id, storage);
+    chaincraft::clear_local_registry();
+    let id = chaincraft::network::PeerId::new();
+    let storage = Arc::new(chaincraft::storage::MemoryStorage::new());
+    let mut node = chaincraft::ChaincraftNode::new(id, storage);
     node.set_port(0);
     node.disable_local_discovery();
     node.add_shared_object(Box::new(ECDSALedgerObject::new()))

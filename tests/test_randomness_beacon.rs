@@ -1,4 +1,4 @@
-use chaincraft_rust::{
+use chaincraft::{
     crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
     error::Result,
     examples::randomness_beacon::{BeaconMessageType, RandomnessBeaconObject},

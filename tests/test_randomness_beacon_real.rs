@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chaincraft_rust::{
+use chaincraft::{
     crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
     examples::randomness_beacon::{
         helpers, BeaconMessageType, BeaconValidator, RandomnessBeaconObject,
@@ -283,7 +283,7 @@ async fn test_randomness_history() {
     beacon.current_round = 2;
     beacon.rounds.insert(
         1,
-        chaincraft_rust::examples::randomness_beacon::BeaconRound {
+        chaincraft::examples::randomness_beacon::BeaconRound {
             round: 1,
             randomness: "abc123def456".to_string(),
             participants: vec!["validator1".to_string(), "validator2".to_string()],

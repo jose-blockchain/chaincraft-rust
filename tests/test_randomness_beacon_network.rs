@@ -1,6 +1,6 @@
 //! Multi-node Randomness Beacon tests over real UDP/gossip layer
 
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry, examples::randomness_beacon::RandomnessBeaconObject, network::PeerId,
     shared_object::ApplicationObject, storage::MemoryStorage, ChaincraftNode,
 };

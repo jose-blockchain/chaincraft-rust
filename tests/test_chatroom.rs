@@ -1,5 +1,5 @@
-use chaincraft_rust::examples::chatroom::{helpers, ChatroomObject};
-use chaincraft_rust::{
+use chaincraft::examples::chatroom::{helpers, ChatroomObject};
+use chaincraft::{
     clear_local_registry,
     crypto::ecdsa::{ECDSASigner, ECDSAVerifier},
     network::PeerId,

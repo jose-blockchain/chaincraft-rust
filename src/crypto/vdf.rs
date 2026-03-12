@@ -36,7 +36,7 @@ impl VerifiableDelayFunction {
         {
             let _ = (challenge, iterations);
             Err(ChaincraftError::Crypto(crate::error::CryptoError::VdfError {
-                reason: "VDF requires feature 'vdf-crypto'. Enable with: chaincraft-rust = { version = \"..\", features = [\"vdf-crypto\"] }".to_string(),
+                reason: "VDF requires feature 'vdf-crypto'. Enable with: chaincraft = { version = \"..\", features = [\"vdf-crypto\"] }".to_string(),
             }))
         }
     }

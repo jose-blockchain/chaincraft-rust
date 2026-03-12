@@ -1,6 +1,4 @@
-use chaincraft_rust::{
-    clear_local_registry, network::PeerId, storage::MemoryStorage, ChaincraftNode,
-};
+use chaincraft::{clear_local_registry, network::PeerId, storage::MemoryStorage, ChaincraftNode};
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};
 

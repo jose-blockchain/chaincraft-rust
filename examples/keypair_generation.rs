@@ -3,7 +3,7 @@
 //! This example demonstrates how to generate and use cryptographic keypairs
 //! for different signature schemes supported by ChainCraft.
 
-use chaincraft_rust::{
+use chaincraft::{
     crypto::address::Address,
     crypto::{utils, KeyType, PrivateKey, PublicKey},
     Result,

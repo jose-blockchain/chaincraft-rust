@@ -1,4 +1,4 @@
-use chaincraft_rust::{error::Result, ChaincraftNode};
+use chaincraft::{error::Result, ChaincraftNode};
 use std::time::{Duration, Instant};
 use tokio::time::sleep;
 

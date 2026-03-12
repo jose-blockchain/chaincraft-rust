@@ -1,4 +1,4 @@
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry,
     network::PeerId,
     shared_object::{ApplicationObject, SimpleSharedNumber},

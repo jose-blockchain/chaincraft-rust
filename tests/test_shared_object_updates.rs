@@ -2,7 +2,7 @@
 //!
 //! Mirrors Python's test_shared_object_updates.py structure.
 
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry,
     network::PeerId,
     shared::MessageType,

@@ -10,8 +10,8 @@
 //!
 //! Run with: `cargo run --example proof_of_work_example`
 
-use chaincraft_rust::crypto::{pow::PoWChallenge, KeylessCryptoPrimitive, ProofOfWork};
-use chaincraft_rust::error::Result;
+use chaincraft::crypto::{pow::PoWChallenge, KeylessCryptoPrimitive, ProofOfWork};
+use chaincraft::error::Result;
 use std::time::Instant;
 
 #[tokio::main]

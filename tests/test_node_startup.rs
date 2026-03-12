@@ -1,5 +1,5 @@
-use chaincraft_rust::{network::PeerId, storage::MemoryStorage};
-use chaincraft_rust::{ChaincraftNode, Result};
+use chaincraft::{network::PeerId, storage::MemoryStorage};
+use chaincraft::{ChaincraftNode, Result};
 use serde_json::json;
 use std::sync::Arc;
 use tokio::time::{sleep, Duration};

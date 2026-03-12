@@ -1,4 +1,4 @@
-use chaincraft_rust::Result;
+use chaincraft::Result;
 
 #[tokio::test]
 async fn test_hashing() -> Result<()> {

@@ -1,4 +1,4 @@
-use chaincraft_rust::{
+use chaincraft::{
     storage::{MemoryStorage, Storage},
     Result,
 };

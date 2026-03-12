@@ -2,7 +2,7 @@
 //!
 //! Mirrors Python's test_local_discovery behavior.
 
-use chaincraft_rust::{
+use chaincraft::{
     clear_local_registry, network::PeerId, shared_object::SimpleSharedNumber,
     storage::MemoryStorage, ApplicationObject, ChaincraftNode,
 };
