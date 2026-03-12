@@ -2,7 +2,7 @@
 
 # Chaincraft Rust
 
-**Chaincraft: A high-performance library for blockchain prototyping and production-ready decentralized protocols**
+**Chaincraft: A high-performance framework for blockchain prototyping and production-ready decentralized protocols**
 
 [![Crates.io](https://img.shields.io/crates/v/chaincraft.svg)](https://crates.io/crates/chaincraft)
 [![Documentation](https://docs.rs/chaincraft/badge.svg)](https://docs.rs/chaincraft)
